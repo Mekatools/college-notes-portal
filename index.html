@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduCloud | Teacher & Student Notes Hub</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts & Remix Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- Animated Glowing Background Orbs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- Navigation Bar -->
+  <header class="glass-nav">
+    <div class="logo">
+      <div class="logo-icon"><i class="ri-book-read-fill"></i></div>
+      <span>Edu<b>Vault</b></span>
+    </div>
+
+    <!-- Mode Switcher Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" id="tabStudentBtn" onclick="switchView('student')">
+        <i class="ri-graduation-cap-line"></i> Student Portal
+      </button>
+      <button class="tab-btn" id="tabTeacherBtn" onclick="openAdminAuthModal()">
+        <i class="ri-lock-line"></i> Teacher Admin
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container">
+
+    <!-- ================= STUDENT VIEW ================= -->
+    <section id="studentView" class="view-panel active">
+      <!-- Hero Banner -->
+      <div class="glass-card hero-section">
+        <div class="hero-text">
+          <span class="badge">College Academic Archive</span>
+          <h1>Lecture Notes & Study Materials</h1>
+          <p>Access and download verified course notes, syllabus modules, and assignments directly shared by your professors.</p>
+        </div>
+        <div class="search-box glass-card">
+          <i class="ri-search-line"></i>
+          <input type="text" id="searchInput" placeholder="Search by topic, unit name, or subject..." oninput="handleSearch()">
+        </div>
+      </div>
+
+      <!-- Subject Category Filter Pills -->
+      <div class="categories-bar" id="categoryFilterBar">
+        <!-- Rendered dynamically via JS -->
+      </div>
+
+      <!-- Notes Grid -->
+      <div class="notes-grid" id="notesListGrid">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- ================= TEACHER ADMIN VIEW ================= -->
+    <section id="teacherView" class="view-panel">
+      <div class="admin-header glass-card">
+        <div>
+          <h2><i class="ri-dashboard-3-line"></i> Faculty Dashboard</h2>
+          <p>Create subjects, upload notes, and control published course materials.</p>
+        </div>
+        <button class="btn-primary" onclick="switchView('student')">
+          <i class="ri-eye-line"></i> Preview as Student
+        </button>
+      </div>
+
+      <div class="admin-grid">
+        <!-- Left: Upload Note Form -->
+        <div class="glass-card form-card">
+          <h3><i class="ri-file-add-line"></i> Post New Lecture Note</h3>
+          <form id="addNoteForm" onsubmit="handleCreateNote(event)">
+            
+            <div class="input-group">
+              <label>Select Subject Category</label>
+              <select id="noteCategorySelect" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label>Document / Topic Title</label>
+              <input type="text" id="noteTitle" placeholder="e.g. Unit 3 - Dynamic Programming" required />
+            </div>
+
+            <div class="input-group">
+              <label>Short Description / Instructions</label>
+              <textarea id="noteDesc" rows="3" placeholder="Brief note about the lecture, assignments, or tips..." required></textarea>
+            </div>
+
+            <div class="input-group">
+              <label>Attach File (PDF, DOCX, ZIP, or Slides)</label>
+              <input type="file" id="noteFileInput" class="file-input" required />
+            </div>
+
+            <button type="submit" class="btn-primary full-width">
+              <i class="ri-upload-cloud-2-line"></i> Upload & Publish to Students
+            </button>
+          </form>
+        </div>
+
+        <!-- Right: Category Management & Published List -->
+        <div class="admin-sidebar">
+          <!-- Add Category Card -->
+          <div class="glass-card form-card">
+            <h3><i class="ri-folder-add-line"></i> Add New Subject</h3>
+            <div class="inline-input">
+              <input type="text" id="newCategoryInput" placeholder="e.g. Machine Learning" />
+              <button class="btn-primary" onclick="handleAddCategory()">
+                <i class="ri-add-line"></i> Add
+              </button>
+            </div>
+          </div>
+
+          <!-- Existing Notes Management List -->
+          <div class="glass-card form-card">
+            <h3><i class="ri-folders-line"></i> Manage Uploaded Notes</h3>
+            <div class="admin-notes-list" id="adminNotesList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TEACHER AUTH MODAL -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="glass-card modal-content">
+      <div class="modal-header">
+        <i class="ri-shield-keyhole-line modal-icon"></i>
+        <h3>Teacher Verification</h3>
+        <p>Enter your teacher passcode to access upload controls.</p>
+      </div>
+      <input type="password" id="adminPassInput" class="pin-input" placeholder="Enter PIN (Default: 1234)" />
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeAuthModal()">Cancel</button>
+        <button class="btn-primary" onclick="verifyAdminPass()">Unlock Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
