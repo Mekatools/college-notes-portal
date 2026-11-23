@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EduCloud | Teacher & Student Notes Hub</title>
+  <title>College Notes Portal | Teacher & Student Hub</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Google Fonts & Remix Icons -->
+  <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 </head>
 <body>
 
-  <!-- Animated Glowing Background Orbs -->
+  <!-- Background Glow Orbs -->
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
   <div class="blob blob-3"></div>
@@ -21,7 +21,7 @@
   <!-- Navigation Bar -->
   <header class="glass-nav">
     <div class="logo">
-      <div class="logo-icon"><i class="ri-book-read-fill"></i></div>
+      <div class="logo-icon"><i class="ri-book-open-fill"></i></div>
       <span>Edu<b>Vault</b></span>
     </div>
 
@@ -30,106 +30,96 @@
       <button class="tab-btn active" id="tabStudentBtn" onclick="switchView('student')">
         <i class="ri-graduation-cap-line"></i> Student Portal
       </button>
-      <button class="tab-btn" id="tabTeacherBtn" onclick="openAdminAuthModal()">
-        <i class="ri-lock-line"></i> Teacher Admin
+      <button class="tab-btn" id="tabTeacherBtn" onclick="openTeacherLogin()">
+        <i class="ri-user-star-line"></i> Teacher Account
       </button>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
+  <!-- Main Content -->
   <main class="container">
 
     <!-- ================= STUDENT VIEW ================= -->
     <section id="studentView" class="view-panel active">
-      <!-- Hero Banner -->
       <div class="glass-card hero-section">
         <div class="hero-text">
-          <span class="badge">College Academic Archive</span>
-          <h1>Lecture Notes & Study Materials</h1>
-          <p>Access and download verified course notes, syllabus modules, and assignments directly shared by your professors.</p>
+          <span class="badge">Official College Portal</span>
+          <h1>Faculty Notes & Study Materials</h1>
+          <p>Find lecture notes, study materials, and syllabus modules directly shared by your professors from their Google Drive.</p>
         </div>
         <div class="search-box glass-card">
           <i class="ri-search-line"></i>
-          <input type="text" id="searchInput" placeholder="Search by topic, unit name, or subject..." oninput="handleSearch()">
+          <input type="text" id="searchInput" placeholder="Search by topic, unit name, or teacher..." oninput="handleSearch()">
         </div>
       </div>
 
-      <!-- Subject Category Filter Pills -->
-      <div class="categories-bar" id="categoryFilterBar">
-        <!-- Rendered dynamically via JS -->
-      </div>
+      <!-- Subject Category Buttons -->
+      <div class="categories-bar" id="categoryFilterBar"></div>
 
       <!-- Notes Grid -->
-      <div class="notes-grid" id="notesListGrid">
-        <!-- Rendered dynamically via JS -->
-      </div>
+      <div class="notes-grid" id="notesListGrid"></div>
     </section>
 
     <!-- ================= TEACHER ADMIN VIEW ================= -->
     <section id="teacherView" class="view-panel">
       <div class="admin-header glass-card">
         <div>
-          <h2><i class="ri-dashboard-3-line"></i> Faculty Dashboard</h2>
-          <p>Create subjects, upload notes, and control published course materials.</p>
+          <h2><i class="ri-dashboard-line"></i> Welcome, <span id="teacherNameDisplay">Professor</span></h2>
+          <p>Post notes directly using your personal Google Drive file links.</p>
         </div>
-        <button class="btn-primary" onclick="switchView('student')">
-          <i class="ri-eye-line"></i> Preview as Student
+        <button class="btn-logout" onclick="logoutTeacher()">
+          <i class="ri-logout-box-r-line"></i> Log Out
         </button>
       </div>
 
       <div class="admin-grid">
-        <!-- Left: Upload Note Form -->
+        <!-- Post Note Form -->
         <div class="glass-card form-card">
-          <h3><i class="ri-file-add-line"></i> Post New Lecture Note</h3>
-          <form id="addNoteForm" onsubmit="handleCreateNote(event)">
+          <h3><i class="ri-file-add-line"></i> Publish New Lecture Note</h3>
+          <form onsubmit="handleCreateNote(event)">
             
             <div class="input-group">
-              <label>Select Subject Category</label>
-              <select id="noteCategorySelect" required>
-                <!-- Populated dynamically -->
-              </select>
+              <label>Select Subject</label>
+              <select id="noteCategorySelect" required></select>
             </div>
 
             <div class="input-group">
-              <label>Document / Topic Title</label>
-              <input type="text" id="noteTitle" placeholder="e.g. Unit 3 - Dynamic Programming" required />
+              <label>Lecture / Topic Title</label>
+              <input type="text" id="noteTitle" placeholder="e.g. Unit 2 - Binary Search Trees" required />
             </div>
 
             <div class="input-group">
-              <label>Short Description / Instructions</label>
-              <textarea id="noteDesc" rows="3" placeholder="Brief note about the lecture, assignments, or tips..." required></textarea>
+              <label>Short Description</label>
+              <textarea id="noteDesc" rows="3" placeholder="Brief note or instructions for students..." required></textarea>
             </div>
 
             <div class="input-group">
-              <label>Attach File (PDF, DOCX, ZIP, or Slides)</label>
-              <input type="file" id="noteFileInput" class="file-input" required />
+              <label>Google Drive File Link</label>
+              <input type="url" id="driveLinkInput" placeholder="Paste your Google Drive share link here" required />
+              <small class="helper-text">In your Google Drive: Right-click file ➔ Share ➔ Copy link</small>
             </div>
 
             <button type="submit" class="btn-primary full-width">
-              <i class="ri-upload-cloud-2-line"></i> Upload & Publish to Students
+              <i class="ri-cloud-upload-line"></i> Publish to Students
             </button>
           </form>
         </div>
 
-        <!-- Right: Category Management & Published List -->
+        <!-- Sidebar: Add Subject & Manage Notes -->
         <div class="admin-sidebar">
-          <!-- Add Category Card -->
           <div class="glass-card form-card">
-            <h3><i class="ri-folder-add-line"></i> Add New Subject</h3>
+            <h3><i class="ri-folder-add-line"></i> Create New Subject</h3>
             <div class="inline-input">
-              <input type="text" id="newCategoryInput" placeholder="e.g. Machine Learning" />
+              <input type="text" id="newCategoryInput" placeholder="e.g. Cloud Computing" />
               <button class="btn-primary" onclick="handleAddCategory()">
                 <i class="ri-add-line"></i> Add
               </button>
             </div>
           </div>
 
-          <!-- Existing Notes Management List -->
           <div class="glass-card form-card">
-            <h3><i class="ri-folders-line"></i> Manage Uploaded Notes</h3>
-            <div class="admin-notes-list" id="adminNotesList">
-              <!-- Rendered via JS -->
-            </div>
+            <h3><i class="ri-file-list-3-line"></i> Your Published Notes</h3>
+            <div class="admin-notes-list" id="adminNotesList"></div>
           </div>
         </div>
       </div>
@@ -137,23 +127,33 @@
 
   </main>
 
-  <!-- TEACHER AUTH MODAL -->
-  <div class="modal-backdrop" id="authModal">
+  <!-- TEACHER LOGIN MODAL -->
+  <div class="modal-backdrop" id="teacherAuthModal">
     <div class="glass-card modal-content">
       <div class="modal-header">
-        <i class="ri-shield-keyhole-line modal-icon"></i>
-        <h3>Teacher Verification</h3>
-        <p>Enter your teacher passcode to access upload controls.</p>
+        <i class="ri-shield-user-line modal-icon"></i>
+        <h3>Teacher Portal Login</h3>
+        <p>Log in with your Teacher ID or register an account.</p>
       </div>
-      <input type="password" id="adminPassInput" class="pin-input" placeholder="Enter PIN (Default: 1234)" />
+
+      <div class="input-group text-left">
+        <label>Teacher Name</label>
+        <input type="text" id="loginTeacherName" placeholder="e.g. Prof. Sharma" />
+      </div>
+
+      <div class="input-group text-left">
+        <label>Passcode / PIN</label>
+        <input type="password" id="loginTeacherPin" placeholder="Enter your 4-digit PIN" />
+      </div>
+
       <div class="modal-actions">
         <button class="btn-outline" onclick="closeAuthModal()">Cancel</button>
-        <button class="btn-primary" onclick="verifyAdminPass()">Unlock Dashboard</button>
+        <button class="btn-primary" onclick="loginOrRegisterTeacher()">Log In / Register</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification -->
+  <!-- Toast Alert -->
   <div class="toast" id="toast"></div>
 
   <script src="app.js"></script>
