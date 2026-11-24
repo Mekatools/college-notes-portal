@@ -5,6 +5,10 @@ let teachers = JSON.parse(localStorage.getItem("eduvault_teachers")) || {};
 let currentTeacher = sessionStorage.getItem("currentTeacher") || null;
 let selectedSubject = "All";
 
+// Active item being edited/deleted
+let targetSubjectForEdit = "";
+let targetDeleteAction = null;
+
 // --- FETCH DATA FROM CLOUDFLARE D1 ---
 async function fetchGlobalData() {
   try {
@@ -12,17 +16,14 @@ async function fetchGlobalData() {
     const subRes = await fetch('/api/subjects');
     const subData = await subRes.json();
     
-    // Seed default subjects if database is brand new
+    // Seed ONLY ONE single clean testing subject if completely empty
     if (!subData || subData.length === 0) {
-      const defaults = ["Computer Networks", "Database Systems", "Operating Systems", "Mathematics"];
-      for (const d of defaults) {
-        await fetch('/api/subjects', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: d })
-        });
-      }
-      subjects = ["All", ...defaults];
+      await fetch('/api/subjects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: "Demo Subject" })
+      });
+      subjects = ["All", "Demo Subject"];
     } else {
       subjects = ["All", ...subData.map(s => s.name)];
     }
@@ -117,7 +118,7 @@ function logoutTeacher() {
   switchView("student");
 }
 
-// --- STUDENT VIEW RENDERING ---
+// --- STUDENT VIEW ---
 function renderStudentView() {
   renderCategoryPills();
   renderNotesGrid();
@@ -188,14 +189,13 @@ function renderNotesGrid() {
   `).join("");
 }
 
-// --- TEACHER ACTIONS (SUBJECTS & NOTES) ---
+// --- TEACHER ACTIONS ---
 function renderTeacherPanel() {
-  // Populate dropdown
   const select = document.getElementById("noteCategorySelect");
   const actualSubjects = subjects.filter(s => s !== "All");
   select.innerHTML = actualSubjects.map(s => `<option value="${s}">${s}</option>`).join("");
 
-  // Populate Subject Management List with Edit & Delete Buttons
+  // Subjects Manager with In-Site Modals
   const subList = document.getElementById("adminSubjectsList");
   if (actualSubjects.length === 0) {
     subList.innerHTML = `<p style="font-size: 0.82rem; color: var(--text-muted);">No subjects created yet.</p>`;
@@ -204,10 +204,10 @@ function renderTeacherPanel() {
       <div class="admin-note-item">
         <span><i class="ri-book-line" style="color: var(--accent-blue); margin-right: 5px;"></i>${sub}</span>
         <div class="action-btns">
-          <button class="btn-edit" onclick="handleEditCategory('${sub}')" title="Rename Subject">
+          <button class="btn-edit" onclick="openEditModal('${sub}')" title="Rename Subject">
             <i class="ri-pencil-line"></i>
           </button>
-          <button class="btn-del" onclick="handleDeleteCategory('${sub}')" title="Delete Subject">
+          <button class="btn-del" onclick="triggerDeleteSubject('${sub}')" title="Delete Subject">
             <i class="ri-delete-bin-line"></i>
           </button>
         </div>
@@ -215,7 +215,7 @@ function renderTeacherPanel() {
     `).join("");
   }
 
-  // Populate Published Notes List
+  // Published Notes List
   const list = document.getElementById("adminNotesList");
   const myNotes = notes.filter(n => n.teacher === currentTeacher);
 
@@ -230,14 +230,121 @@ function renderTeacherPanel() {
         <span>${n.title}</span>
         <p style="font-size: 0.72rem; color: var(--accent-blue);">${n.subject}</p>
       </div>
-      <button class="btn-del" onclick="deleteNote('${n.id}')" title="Delete note">
+      <button class="btn-del" onclick="triggerDeleteNote('${n.id}', '${n.title}')" title="Delete note">
         <i class="ri-delete-bin-line"></i>
       </button>
     </div>
   `).join("");
 }
 
-// 1. ADD SUBJECT
+// --- IN-SITE EDIT SUBJECT MODAL LOGIC ---
+function openEditModal(subName) {
+  targetSubjectForEdit = subName;
+  document.getElementById("editSubjectInput").value = subName;
+  document.getElementById("editSubjectModal").classList.add("active");
+  document.getElementById("editSubjectInput").focus();
+}
+
+function closeEditModal() {
+  document.getElementById("editSubjectModal").classList.remove("active");
+  targetSubjectForEdit = "";
+}
+
+async function confirmEditSubject() {
+  const newName = document.getElementById("editSubjectInput").value.trim();
+  if (!newName || newName === targetSubjectForEdit) {
+    closeEditModal();
+    return;
+  }
+
+  showToast("Updating subject...");
+  try {
+    const res = await fetch('/api/subjects', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ oldName: targetSubjectForEdit, newName: newName })
+    });
+
+    if (res.ok) {
+      showToast(`Renamed to "${newName}"!`);
+      closeEditModal();
+      fetchGlobalData();
+    }
+  } catch (err) {
+    showToast("Failed to rename subject.");
+  }
+}
+
+// --- IN-SITE DELETE CONFIRM MODAL LOGIC ---
+function closeDeleteModal() {
+  document.getElementById("deleteConfirmModal").classList.remove("active");
+  targetDeleteAction = null;
+}
+
+function triggerDeleteSubject(subName) {
+  // Check if teacher selected "Don't ask again"
+  if (localStorage.getItem("skip_delete_confirm") === "true") {
+    executeDeleteSubject(subName);
+    return;
+  }
+
+  document.getElementById("deleteModalTitle").innerText = `Delete "${subName}"?`;
+  document.getElementById("deleteModalDesc").innerText = "This will remove the subject category.";
+  
+  targetDeleteAction = () => executeDeleteSubject(subName);
+  document.getElementById("deleteConfirmModal").classList.add("active");
+}
+
+function triggerDeleteNote(id, title) {
+  if (localStorage.getItem("skip_delete_confirm") === "true") {
+    executeDeleteNote(id);
+    return;
+  }
+
+  document.getElementById("deleteModalTitle").innerText = `Delete Note?`;
+  document.getElementById("deleteModalDesc").innerText = `Remove "${title}" from the portal?`;
+
+  targetDeleteAction = () => executeDeleteNote(id);
+  document.getElementById("deleteConfirmModal").classList.add("active");
+}
+
+document.getElementById("confirmDeleteActionBtn").onclick = function() {
+  // Save preference if checkbox checked
+  if (document.getElementById("dontAskDeleteAgain").checked) {
+    localStorage.setItem("skip_delete_confirm", "true");
+  }
+  if (targetDeleteAction) {
+    targetDeleteAction();
+  }
+  closeDeleteModal();
+};
+
+async function executeDeleteSubject(name) {
+  showToast("Deleting subject...");
+  try {
+    const res = await fetch(`/api/subjects?name=${encodeURIComponent(name)}`, { method: 'DELETE' });
+    if (res.ok) {
+      showToast(`Subject "${name}" deleted.`);
+      fetchGlobalData();
+    }
+  } catch (err) {
+    showToast("Failed to delete subject.");
+  }
+}
+
+async function executeDeleteNote(id) {
+  try {
+    const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      showToast("Note deleted.");
+      fetchGlobalData();
+    }
+  } catch (err) {
+    showToast("Failed to delete note.");
+  }
+}
+
+// --- ADD SUBJECT ---
 async function handleAddCategory() {
   const input = document.getElementById("newCategoryInput");
   const newSub = input.value.trim();
@@ -257,7 +364,7 @@ async function handleAddCategory() {
 
     if (res.ok) {
       input.value = "";
-      showToast(`Subject "${newSub}" added!`);
+      showToast(`Subject "${newSub}" created!`);
       fetchGlobalData();
     }
   } catch (err) {
@@ -265,52 +372,7 @@ async function handleAddCategory() {
   }
 }
 
-// 2. EDIT / RENAME SUBJECT
-async function handleEditCategory(oldName) {
-  const newName = prompt(`Rename subject "${oldName}" to:`, oldName);
-  if (!newName || newName.trim() === "" || newName.trim() === oldName) return;
-
-  const trimmed = newName.trim();
-  showToast("Updating subject...");
-
-  try {
-    const res = await fetch('/api/subjects', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ oldName: oldName, newName: trimmed })
-    });
-
-    if (res.ok) {
-      showToast(`Renamed to "${trimmed}"!`);
-      fetchGlobalData();
-    }
-  } catch (err) {
-    showToast("Failed to rename subject.");
-  }
-}
-
-// 3. DELETE SUBJECT
-async function handleDeleteCategory(name) {
-  const ok = confirm(`Are you sure you want to delete "${name}"?`);
-  if (!ok) return;
-
-  showToast("Deleting subject...");
-
-  try {
-    const res = await fetch(`/api/subjects?name=${encodeURIComponent(name)}`, {
-      method: 'DELETE'
-    });
-
-    if (res.ok) {
-      showToast(`Subject "${name}" deleted.`);
-      fetchGlobalData();
-    }
-  } catch (err) {
-    showToast("Failed to delete subject.");
-  }
-}
-
-// 4. PUBLISH NOTE
+// --- PUBLISH NOTE ---
 async function handleCreateNote(e) {
   e.preventDefault();
 
@@ -352,19 +414,6 @@ async function handleCreateNote(e) {
     }
   } catch (err) {
     showToast("Network error. Please try again.");
-  }
-}
-
-// 5. DELETE NOTE
-async function deleteNote(id) {
-  try {
-    const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
-    if (res.ok) {
-      showToast("Note deleted from database.");
-      fetchGlobalData();
-    }
-  } catch (err) {
-    showToast("Failed to delete note.");
   }
 }
 
