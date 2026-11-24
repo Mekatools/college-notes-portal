@@ -128,28 +128,28 @@
 
   </main>
 
-  <!-- TEACHER LOGIN MODAL -->
+  <!-- TEACHER LOGIN MODAL (SECURE ACCESS) -->
   <div class="modal-backdrop" id="teacherAuthModal">
     <div class="glass-card modal-content">
       <div class="modal-header">
-        <i class="ri-shield-user-line modal-icon"></i>
-        <h3>Teacher Portal Login</h3>
-        <p>Log in with your Teacher ID or register an account.</p>
+        <i class="ri-shield-keyhole-line modal-icon" style="color: var(--accent-blue);"></i>
+        <h3>Faculty Verification</h3>
+        <p>Enter your Teacher Name and the Official Faculty Password.</p>
+      </div>
+
+      <div class="input-group text-left" style="margin-top: 15px;">
+        <label>Your Name / Title</label>
+        <input type="text" id="loginTeacherName" placeholder="e.g. Dr. Sharma" />
       </div>
 
       <div class="input-group text-left">
-        <label>Teacher Name</label>
-        <input type="text" id="loginTeacherName" placeholder="e.g. Prof. Smith" />
-      </div>
-
-      <div class="input-group text-left">
-        <label>Passcode / PIN</label>
-        <input type="password" id="loginTeacherPin" placeholder="Enter your 4-digit PIN" />
+        <label>Faculty Secret Password</label>
+        <input type="password" id="loginTeacherPin" placeholder="Enter teacher password" />
       </div>
 
       <div class="modal-actions">
         <button class="btn-outline" onclick="closeAuthModal()">Cancel</button>
-        <button class="btn-primary" onclick="loginOrRegisterTeacher()">Log In / Register</button>
+        <button class="btn-primary" onclick="verifyTeacherAccess()">Unlock Dashboard</button>
       </div>
     </div>
   </div>
@@ -178,7 +178,7 @@
       <div class="modal-header">
         <i class="ri-delete-bin-line modal-icon" style="color: var(--danger);"></i>
         <h3 id="deleteModalTitle">Delete Subject?</h3>
-        <p id="deleteModalDesc">This subject will be permanently removed.</p>
+        <p id="deleteModalDesc">This subject and all its notes will be deleted.</p>
       </div>
       <div style="margin: 14px 0; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
         <input type="checkbox" id="dontAskDeleteAgain" style="cursor: pointer;" />
