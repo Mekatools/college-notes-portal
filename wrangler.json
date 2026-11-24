@@ -4,5 +4,11 @@
   "compatibility_date": "2026-11-24",
   "assets": {
     "directory": "."
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_id": "e62c4b96-9934-4b9d-80e4-5a221e4a5681"
+    }
+  ]
 }
