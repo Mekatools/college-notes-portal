@@ -13,11 +13,6 @@
 </head>
 <body>
 
-  <!-- Background Glow Orbs -->
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-
   <!-- Navigation Bar -->
   <header class="glass-nav">
     <div class="logo">
@@ -65,7 +60,7 @@
       <div class="admin-header glass-card">
         <div>
           <h2><i class="ri-dashboard-line"></i> Welcome, <span id="teacherNameDisplay">Professor</span></h2>
-          <p>Post notes directly using your personal Google Drive file links.</p>
+          <p>Post notes and manage college subjects.</p>
         </div>
         <button class="btn-logout" onclick="logoutTeacher()">
           <i class="ri-logout-box-r-line"></i> Log Out
@@ -105,22 +100,30 @@
           </form>
         </div>
 
-        <!-- Sidebar: Add Subject & Manage Notes -->
+        <!-- Sidebar: Add/Edit/Delete Subjects & Notes -->
         <div class="admin-sidebar">
+          
+          <!-- Subject Manager with Edit & Delete -->
           <div class="glass-card form-card">
-            <h3><i class="ri-folder-add-line"></i> Create New Subject</h3>
+            <h3><i class="ri-folder-add-line"></i> Subjects Manager</h3>
             <div class="inline-input">
-              <input type="text" id="newCategoryInput" placeholder="e.g. Cloud Computing" />
+              <input type="text" id="newCategoryInput" placeholder="Add subject (e.g. AI)" />
               <button class="btn-primary" onclick="handleAddCategory()">
                 <i class="ri-add-line"></i> Add
               </button>
             </div>
+            
+            <div class="admin-notes-list" id="adminSubjectsList" style="margin-top: 15px;">
+              <!-- Dynamic Subjects with Edit & Delete buttons -->
+            </div>
           </div>
 
+          <!-- Notes Manager -->
           <div class="glass-card form-card">
             <h3><i class="ri-file-list-3-line"></i> Your Published Notes</h3>
             <div class="admin-notes-list" id="adminNotesList"></div>
           </div>
+
         </div>
       </div>
     </section>
