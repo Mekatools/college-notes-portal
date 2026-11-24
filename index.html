@@ -128,7 +128,72 @@
 
   </main>
 
-  <!-- TEACHER LOGIN MODAL (SECURE ACCESS) -->
+  <!-- ================= PROFESSIONAL FOOTER ================= -->
+  <footer class="portal-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span>© 2026 EduVault Academic Archive</span>
+        <span class="creator-tag">
+          <i class="ri-terminal-box-line"></i> Engineered by <b>Meka develops</b>
+        </span>
+      </div>
+      <div class="footer-right">
+        <button class="footer-btn" onclick="openPrivacyModal()">Privacy Policy</button>
+        <span class="footer-divider">•</span>
+        <button class="footer-btn" onclick="openTermsModal()">Terms of Service</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- PRIVACY POLICY MODAL -->
+  <div class="modal-backdrop" id="privacyModal">
+    <div class="glass-card modal-content modal-policy">
+      <div class="modal-header">
+        <i class="ri-shield-check-line modal-icon" style="color: var(--accent-blue);"></i>
+        <h3>Privacy Policy</h3>
+        <p>Student Data & Confidentiality Standards</p>
+      </div>
+      <div class="policy-body">
+        <h4>1. Zero Student Tracking</h4>
+        <p>EduVault does not track student activity, collect personal identifying information, or deploy advertising cookies. Browsing and downloading lecture notes is completely anonymous.</p>
+
+        <h4>2. Cloud File Storage</h4>
+        <p>All lecture notes, slide presentations, and syllabus documents are hosted directly on faculty professors' secure Google Drives and delivered over encrypted HTTPS connections.</p>
+
+        <h4>3. Security Infrastructure</h4>
+        <p>Faculty authentication and database records are governed by Cloudflare Edge Security with zero local machine storage.</p>
+      </div>
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button class="btn-primary full-width" onclick="closePrivacyModal()">Understood</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TERMS OF SERVICE MODAL -->
+  <div class="modal-backdrop" id="termsModal">
+    <div class="glass-card modal-content modal-policy">
+      <div class="modal-header">
+        <i class="ri-file-shield-line modal-icon" style="color: var(--accent-gold);"></i>
+        <h3>Terms of Service</h3>
+        <p>Academic Integrity & Fair Use Guidelines</p>
+      </div>
+      <div class="policy-body">
+        <h4>1. Non-Commercial Academic Use</h4>
+        <p>All materials provided on this platform are for academic revision and personal study only. Re-selling, commercial publishing, or unauthorized mirroring is strictly prohibited.</p>
+
+        <h4>2. Faculty Intellectual Property</h4>
+        <p>All lecture notes, diagrams, exercises, and handouts remain the exclusive intellectual property of the respective faculty professors who authored them.</p>
+
+        <h4>3. Platform Stewardship</h4>
+        <p>Engineered and maintained by <b>Meka develops</b> for educational enablement.</p>
+      </div>
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button class="btn-primary full-width" onclick="closeTermsModal()">Accept & Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEACHER LOGIN MODAL -->
   <div class="modal-backdrop" id="teacherAuthModal">
     <div class="glass-card modal-content">
       <div class="modal-header">
