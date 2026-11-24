@@ -1,7 +1,13 @@
+// ========================================================
+// 🔑 OFFICIAL TEACHER SECRET PASSWORD
+// (Change this word anytime right here in GitHub!)
+// ========================================================
+const TEACHER_SECRET_PASSWORD = "teacher2026"; 
+// ========================================================
+
 // --- STATE ---
 let subjects = ["All"];
 let notes = [];
-let teachers = JSON.parse(localStorage.getItem("eduvault_teachers")) || {};
 let currentTeacher = localStorage.getItem("currentTeacher") || null;
 let selectedSubject = "All";
 
@@ -16,7 +22,7 @@ async function fetchGlobalData() {
     const subRes = await fetch('/api/subjects');
     const subData = await subRes.json();
     
-    // Seed ONLY ONE single clean testing subject if completely empty
+    // Seed ONLY ONE clean testing subject if completely empty
     if (!subData || subData.length === 0) {
       await fetch('/api/subjects', {
         method: 'POST',
@@ -74,7 +80,7 @@ function switchView(viewName) {
   }
 }
 
-// --- TEACHER LOGIN & REGISTRATION ---
+// --- SECURE TEACHER LOGIN ---
 function openTeacherLogin() {
   if (currentTeacher) {
     switchView("teacher");
@@ -89,30 +95,26 @@ function closeAuthModal() {
   document.getElementById("teacherAuthModal").classList.remove("active");
 }
 
-function loginOrRegisterTeacher() {
+function verifyTeacherAccess() {
   const name = document.getElementById("loginTeacherName").value.trim();
-  const pin = document.getElementById("loginTeacherPin").value.trim();
+  const enteredPass = document.getElementById("loginTeacherPin").value.trim();
 
-  if (!name || !pin) {
-    showToast("Please enter both Name and PIN");
+  if (!name) {
+    showToast("Please enter your Name / Title");
     return;
   }
 
-  if (teachers[name]) {
-    if (teachers[name] !== pin) {
-      showToast("Incorrect PIN for this teacher name!");
-      return;
-    }
-    showToast(`Welcome back, ${name}!`);
-  } else {
-    teachers[name] = pin;
-    localStorage.setItem("eduvault_teachers", JSON.stringify(teachers));
-    showToast(`Registered successfully as ${name}!`);
+  // Check against the secret password you control
+  if (enteredPass !== TEACHER_SECRET_PASSWORD) {
+    showToast("Access Denied: Incorrect Faculty Password!");
+    return;
   }
 
+  // Password correct! Log them in and remember them
   currentTeacher = name;
   localStorage.setItem("currentTeacher", currentTeacher);
   closeAuthModal();
+  showToast(`Welcome, ${name}!`);
   switchView("teacher");
 }
 
