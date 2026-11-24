@@ -10,6 +10,7 @@
   --text-muted: #8896ab;
   --accent-gold: #f59e0b;
   --accent-blue: #3b82f6;
+  --accent-emerald: #10b981;
   --danger: #ef4444;
 }
 
@@ -411,6 +412,89 @@ body::before {
 
 .inline-input { display: flex; gap: 8px; }
 
+/* METHOD TOGGLE (UPLOAD vs LINK) */
+.method-toggle {
+  display: flex;
+  gap: 6px;
+  background: #090b10;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+}
+
+.method-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.method-btn.active {
+  background: #1e293b;
+  color: #fff;
+  border: 1px solid var(--border-active);
+}
+
+/* DRAG & DROP ZONE */
+.drop-zone {
+  border: 1px dashed var(--border-active);
+  background: #090b10;
+  border-radius: 8px;
+  text-align: center;
+  padding: 24px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+  border-color: var(--accent-blue);
+  background: rgba(59, 130, 246, 0.04);
+}
+
+.drop-icon {
+  font-size: 2rem;
+  color: var(--accent-blue);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.drop-zone p {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.drop-subtext {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: block;
+}
+
+/* File Selected Info Badge */
+.file-info-badge {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #1e293b;
+  border: 1px solid var(--border-active);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-main);
+}
+
 .btn-primary {
   background: #fff;
   border: none;
@@ -427,7 +511,7 @@ body::before {
   transition: opacity 0.15s ease;
 }
 
-.btn-primary.full-width { width: 100%; margin-top: 6px; }
+.btn-primary.full-width { width: 100%; }
 .btn-primary:hover { opacity: 0.88; }
 
 .admin-sidebar { display: flex; flex-direction: column; gap: 20px; }
@@ -459,11 +543,7 @@ body::before {
 }
 
 /* Edit & Delete Buttons */
-.action-btns {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
+.action-btns { display: flex; gap: 8px; align-items: center; }
 
 .btn-edit {
   background: transparent;
@@ -471,7 +551,6 @@ body::before {
   color: var(--accent-blue);
   cursor: pointer;
   font-size: 1rem;
-  transition: opacity 0.15s;
 }
 
 .btn-edit:hover { opacity: 0.75; }
@@ -482,12 +561,11 @@ body::before {
   color: var(--danger);
   cursor: pointer;
   font-size: 1rem;
-  transition: opacity 0.15s;
 }
 
 .btn-del:hover { opacity: 0.75; }
 
-/* ================= ACADEMIC FOOTER ================= */
+/* Academic Footer */
 .portal-footer {
   border-top: 1px solid var(--border-subtle);
   background: rgba(9, 11, 16, 0.95);
@@ -549,32 +627,13 @@ body::before {
 .footer-btn:hover { color: #fff; text-decoration: underline; }
 .footer-divider { color: var(--border-active); font-size: 0.8rem; }
 
-/* Policy Modal Body */
-.modal-policy {
-  max-width: 500px;
-  text-align: left;
-}
+/* Policy Modal */
+.modal-policy { max-width: 500px; text-align: left; }
+.policy-body { margin-top: 15px; max-height: 340px; overflow-y: auto; padding-right: 5px; }
+.policy-body h4 { font-size: 0.88rem; color: #fff; margin: 12px 0 4px; }
+.policy-body p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; }
 
-.policy-body {
-  margin-top: 15px;
-  max-height: 340px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-.policy-body h4 {
-  font-size: 0.88rem;
-  color: #fff;
-  margin: 12px 0 4px;
-}
-
-.policy-body p {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  line-height: 1.55;
-}
-
-/* ================= MODERN MODALS & TOP-RIGHT ✕ ================= */
+/* Modals & Top-Right ✕ */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -589,7 +648,7 @@ body::before {
 .modal-backdrop.active { display: flex; }
 
 .modal-content {
-  position: relative; /* Anchor the ✕ button to top-right */
+  position: relative;
   width: 90%;
   max-width: 380px;
   padding: 26px;
@@ -599,7 +658,6 @@ body::before {
   border-radius: 12px;
 }
 
-/* SLEEK TOP-RIGHT ✕ BUTTON */
 .modal-close-btn {
   position: absolute;
   top: 14px;
@@ -618,11 +676,7 @@ body::before {
   transition: all 0.15s ease;
 }
 
-.modal-close-btn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-}
-
+.modal-close-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
 .modal-icon { font-size: 2.2rem; color: var(--text-main); margin-bottom: 8px; }
 .text-left { text-align: left; }
 .modal-actions { display: flex; gap: 8px; margin-top: 14px; }
