@@ -10,5 +10,11 @@
       "binding": "DB",
       "database_id": "e62c4b96-9934-4b9d-80e4-5a221e4a5681"
     }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "FILES_KV",
+      "id": "7ed8700c4a3a479899860654c19e91e1"
+    }
   ]
 }
