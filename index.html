@@ -80,7 +80,7 @@
 
             <div class="input-group">
               <label>Lecture / Topic Title</label>
-              <input type="text" id="noteTitle" placeholder="e.g. Unit 2 - Binary Search Trees" required />
+              <input type="text" id="noteTitle" placeholder="e.g. Unit 1 Introduction" required />
             </div>
 
             <div class="input-group">
@@ -100,25 +100,23 @@
           </form>
         </div>
 
-        <!-- Sidebar: Add/Edit/Delete Subjects & Notes -->
+        <!-- Sidebar: Manage Subjects & Notes -->
         <div class="admin-sidebar">
           
-          <!-- Subject Manager with Edit & Delete -->
           <div class="glass-card form-card">
             <h3><i class="ri-folder-add-line"></i> Subjects Manager</h3>
             <div class="inline-input">
-              <input type="text" id="newCategoryInput" placeholder="Add subject (e.g. AI)" />
+              <input type="text" id="newCategoryInput" placeholder="New subject name" />
               <button class="btn-primary" onclick="handleAddCategory()">
                 <i class="ri-add-line"></i> Add
               </button>
             </div>
             
             <div class="admin-notes-list" id="adminSubjectsList" style="margin-top: 15px;">
-              <!-- Dynamic Subjects with Edit & Delete buttons -->
+              <!-- Dynamic Subjects rendered here -->
             </div>
           </div>
 
-          <!-- Notes Manager -->
           <div class="glass-card form-card">
             <h3><i class="ri-file-list-3-line"></i> Your Published Notes</h3>
             <div class="admin-notes-list" id="adminNotesList"></div>
@@ -141,7 +139,7 @@
 
       <div class="input-group text-left">
         <label>Teacher Name</label>
-        <input type="text" id="loginTeacherName" placeholder="e.g. Prof. Sharma" />
+        <input type="text" id="loginTeacherName" placeholder="e.g. Prof. Smith" />
       </div>
 
       <div class="input-group text-left">
@@ -152,6 +150,43 @@
       <div class="modal-actions">
         <button class="btn-outline" onclick="closeAuthModal()">Cancel</button>
         <button class="btn-primary" onclick="loginOrRegisterTeacher()">Log In / Register</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-SITE EDIT SUBJECT MODAL -->
+  <div class="modal-backdrop" id="editSubjectModal">
+    <div class="glass-card modal-content">
+      <div class="modal-header">
+        <i class="ri-pencil-line modal-icon" style="color: var(--accent-blue);"></i>
+        <h3>Rename Subject</h3>
+        <p>Enter the new name for this subject.</p>
+      </div>
+      <div class="input-group text-left" style="margin-top: 15px;">
+        <input type="text" id="editSubjectInput" placeholder="Subject name" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeEditModal()">Cancel</button>
+        <button class="btn-primary" onclick="confirmEditSubject()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-SITE DELETE CONFIRM MODAL -->
+  <div class="modal-backdrop" id="deleteConfirmModal">
+    <div class="glass-card modal-content">
+      <div class="modal-header">
+        <i class="ri-delete-bin-line modal-icon" style="color: var(--danger);"></i>
+        <h3 id="deleteModalTitle">Delete Subject?</h3>
+        <p id="deleteModalDesc">This subject will be permanently removed.</p>
+      </div>
+      <div style="margin: 14px 0; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.8rem; color: var(--text-muted);">
+        <input type="checkbox" id="dontAskDeleteAgain" style="cursor: pointer;" />
+        <label for="dontAskDeleteAgain" style="cursor: pointer;">Don't ask me again</label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-outline" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn-primary" id="confirmDeleteActionBtn" style="background: var(--danger); color: #fff;">Delete</button>
       </div>
     </div>
   </div>
