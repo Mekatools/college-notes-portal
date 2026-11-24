@@ -557,7 +557,7 @@ body::before {
 
 .policy-body {
   margin-top: 15px;
-  max-height: 320px;
+  max-height: 340px;
   overflow-y: auto;
   padding-right: 5px;
 }
@@ -574,7 +574,7 @@ body::before {
   line-height: 1.55;
 }
 
-/* Generic Modals */
+/* ================= MODERN MODALS & TOP-RIGHT ✕ ================= */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -589,12 +589,38 @@ body::before {
 .modal-backdrop.active { display: flex; }
 
 .modal-content {
+  position: relative; /* Anchor the ✕ button to top-right */
   width: 90%;
   max-width: 380px;
   padding: 26px;
   text-align: center;
   background: #0f141e;
   border: 1px solid var(--border-active);
+  border-radius: 12px;
+}
+
+/* SLEEK TOP-RIGHT ✕ BUTTON */
+.modal-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .modal-icon { font-size: 2.2rem; color: var(--text-main); margin-bottom: 8px; }
