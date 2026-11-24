@@ -145,9 +145,13 @@
     </div>
   </footer>
 
-  <!-- PRIVACY POLICY MODAL -->
+  <!-- PRIVACY POLICY MODAL (WITH TOP-RIGHT ✕) -->
   <div class="modal-backdrop" id="privacyModal">
     <div class="glass-card modal-content modal-policy">
+      <button class="modal-close-btn" onclick="closePrivacyModal()" title="Close">
+        <i class="ri-close-line"></i>
+      </button>
+
       <div class="modal-header">
         <i class="ri-shield-check-line modal-icon" style="color: var(--accent-blue);"></i>
         <h3>Privacy Policy</h3>
@@ -163,15 +167,16 @@
         <h4>3. Security Infrastructure</h4>
         <p>Faculty authentication and database records are governed by Cloudflare Edge Security with zero local machine storage.</p>
       </div>
-      <div class="modal-actions" style="margin-top: 20px;">
-        <button class="btn-primary full-width" onclick="closePrivacyModal()">Understood</button>
-      </div>
     </div>
   </div>
 
-  <!-- TERMS OF SERVICE MODAL -->
+  <!-- TERMS OF SERVICE MODAL (WITH TOP-RIGHT ✕) -->
   <div class="modal-backdrop" id="termsModal">
     <div class="glass-card modal-content modal-policy">
+      <button class="modal-close-btn" onclick="closeTermsModal()" title="Close">
+        <i class="ri-close-line"></i>
+      </button>
+
       <div class="modal-header">
         <i class="ri-file-shield-line modal-icon" style="color: var(--accent-gold);"></i>
         <h3>Terms of Service</h3>
@@ -187,15 +192,16 @@
         <h4>3. Platform Stewardship</h4>
         <p>Engineered and maintained by <b>Meka develops</b> for educational enablement.</p>
       </div>
-      <div class="modal-actions" style="margin-top: 20px;">
-        <button class="btn-primary full-width" onclick="closeTermsModal()">Accept & Close</button>
-      </div>
     </div>
   </div>
 
   <!-- TEACHER LOGIN MODAL -->
   <div class="modal-backdrop" id="teacherAuthModal">
     <div class="glass-card modal-content">
+      <button class="modal-close-btn" onclick="closeAuthModal()" title="Close">
+        <i class="ri-close-line"></i>
+      </button>
+
       <div class="modal-header">
         <i class="ri-shield-keyhole-line modal-icon" style="color: var(--accent-blue);"></i>
         <h3>Faculty Verification</h3>
@@ -222,6 +228,10 @@
   <!-- IN-SITE EDIT SUBJECT MODAL -->
   <div class="modal-backdrop" id="editSubjectModal">
     <div class="glass-card modal-content">
+      <button class="modal-close-btn" onclick="closeEditModal()" title="Close">
+        <i class="ri-close-line"></i>
+      </button>
+
       <div class="modal-header">
         <i class="ri-pencil-line modal-icon" style="color: var(--accent-blue);"></i>
         <h3>Rename Subject</h3>
