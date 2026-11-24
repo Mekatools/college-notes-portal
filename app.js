@@ -2,8 +2,6 @@
 let subjects = ["All"];
 let notes = [];
 let teachers = JSON.parse(localStorage.getItem("eduvault_teachers")) || {};
-
-// REMEMBERS LOGIN PERMANENTLY (Even when closing tab or browser)
 let currentTeacher = localStorage.getItem("currentTeacher") || null;
 let selectedSubject = "All";
 
@@ -34,6 +32,11 @@ async function fetchGlobalData() {
     const notesRes = await fetch('/api/notes');
     notes = await notesRes.json();
 
+    // If active filtered subject was deleted, reset to "All"
+    if (!subjects.includes(selectedSubject)) {
+      selectedSubject = "All";
+    }
+
     // Render Portal
     renderStudentView();
     if (currentTeacher) {
@@ -58,7 +61,6 @@ function switchView(viewName) {
     tabTeacherBtn.classList.remove("active");
     renderStudentView();
   } else {
-    // If teacher is already remembered, jump straight into dashboard
     if (!currentTeacher) {
       openTeacherLogin();
       return;
@@ -108,7 +110,6 @@ function loginOrRegisterTeacher() {
     showToast(`Registered successfully as ${name}!`);
   }
 
-  // Save login PERMANENTLY in localStorage
   currentTeacher = name;
   localStorage.setItem("currentTeacher", currentTeacher);
   closeAuthModal();
@@ -292,7 +293,7 @@ function triggerDeleteSubject(subName) {
   }
 
   document.getElementById("deleteModalTitle").innerText = `Delete "${subName}"?`;
-  document.getElementById("deleteModalDesc").innerText = "This will remove the subject category.";
+  document.getElementById("deleteModalDesc").innerText = "This will permanently delete this subject and all notes inside it.";
   
   targetDeleteAction = () => executeDeleteSubject(subName);
   document.getElementById("deleteConfirmModal").classList.add("active");
@@ -322,11 +323,14 @@ document.getElementById("confirmDeleteActionBtn").onclick = function() {
 };
 
 async function executeDeleteSubject(name) {
-  showToast("Deleting subject...");
+  showToast("Deleting subject & its notes...");
   try {
     const res = await fetch(`/api/subjects?name=${encodeURIComponent(name)}`, { method: 'DELETE' });
     if (res.ok) {
-      showToast(`Subject "${name}" deleted.`);
+      if (selectedSubject === name) {
+        selectedSubject = "All";
+      }
+      showToast(`Subject "${name}" & its files removed.`);
       fetchGlobalData();
     }
   } catch (err) {
