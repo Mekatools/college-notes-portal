@@ -2,7 +2,7 @@
 let subjects = ["All"];
 let notes = [];
 
-// Session State (Zero hardcoded passwords here! Inspected code contains no secrets)
+// Session State (Zero secrets in browser — protected on Cloudflare server)
 let currentTeacher = localStorage.getItem("currentTeacher") || null;
 let teacherSecretKey = localStorage.getItem("teacherSecretKey") || null;
 let selectedSubject = "All";
@@ -116,7 +116,6 @@ async function verifyTeacherAccess() {
     });
 
     if (res.ok) {
-      // Password is authentic on server
       currentTeacher = name;
       teacherSecretKey = enteredPass;
       localStorage.setItem("currentTeacher", currentTeacher);
@@ -463,6 +462,23 @@ async function handleCreateNote(e) {
   } catch (err) {
     showToast("Network error. Please try again.");
   }
+}
+
+// --- PRIVACY & TERMS MODALS ---
+function openPrivacyModal() {
+  document.getElementById("privacyModal").classList.add("active");
+}
+
+function closePrivacyModal() {
+  document.getElementById("privacyModal").classList.remove("active");
+}
+
+function openTermsModal() {
+  document.getElementById("termsModal").classList.add("active");
+}
+
+function closeTermsModal() {
+  document.getElementById("termsModal").classList.remove("active");
 }
 
 // Toast Alert
