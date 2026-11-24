@@ -1,662 +1,493 @@
-@import url('https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@700;800&family=Inter:wght@400;500;600;700&display=swap');
-
-:root {
-  --bg-core: #090b10;
-  --bg-surface: #0f141e;
-  --panel-glass: rgba(18, 24, 38, 0.72);
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-active: rgba(255, 255, 255, 0.18);
-  --text-main: #f1f5f9;
-  --text-muted: #8896ab;
-  --accent-gold: #f59e0b;
-  --accent-blue: #3b82f6;
-  --danger: #ef4444;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Inter', -apple-system, sans-serif;
-}
-
-body {
-  background-color: var(--bg-core);
-  color: var(--text-main);
-  min-height: 100vh;
-  position: relative;
-  background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 38px 38px;
-  background-position: center;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 900px;
-  height: 250px;
-  background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.12), transparent 70%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* Glass Card */
-.glass-card {
-  background: var(--panel-glass);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.glass-card:hover { border-color: var(--border-active); }
-
-/* Header & Nav */
-.glass-nav {
-  position: sticky;
-  top: 20px;
-  max-width: 1140px;
-  width: 92%;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 18px;
-  background: rgba(11, 15, 23, 0.82);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  z-index: 100;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.logo-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: #1e293b;
-  border: 1px solid var(--border-active);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-main);
-  font-size: 0.95rem;
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 4px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 3px;
-  border-radius: 8px;
-  border: 1px solid var(--border-subtle);
-}
-
-.tab-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  padding: 6px 14px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s ease;
-}
-
-.tab-btn:hover { color: var(--text-main); }
-.tab-btn.active {
-  background: #1e293b;
-  color: #fff;
-  border: 1px solid var(--border-active);
-}
-
-/* Layout */
-.container {
-  max-width: 1140px;
-  width: 92%;
-  margin: 40px auto 60px;
-  flex: 1;
-}
-
-.view-panel {
-  display: none;
-  animation: viewFade 0.25s ease-out forwards;
-}
-
-.view-panel.active { display: block; }
-
-@keyframes viewFade {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Hero Section */
-.hero-section {
-  padding: 36px;
-  margin-bottom: 25px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.badge {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-muted);
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border: 1px solid var(--border-subtle);
-  width: fit-content;
-}
-
-.hero-text h1 {
-  font-size: 2.1rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: #fff;
-  margin: 6px 0 10px;
-}
-
-.hero-text p {
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  max-width: 580px;
-  line-height: 1.6;
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: #090b10;
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-}
-
-.search-box i { color: var(--text-muted); font-size: 1.1rem; }
-.search-box input {
-  background: transparent;
-  border: none;
-  outline: none;
-  color: #fff;
-  width: 100%;
-  font-size: 0.88rem;
-}
-
-/* Category Filter Tags */
-.categories-bar {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 12px;
-  margin-bottom: 22px;
-}
-
-.category-chip {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s ease;
-}
-
-.category-chip:hover { color: var(--text-main); border-color: var(--border-active); }
-.category-chip.active {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
-  font-weight: 600;
-}
-
-/* Notes Cards Grid */
-.notes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
-  gap: 18px;
-}
-
-.note-card {
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  background: #0f141e;
-}
-
-.note-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--border-active);
-}
-
-.note-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.note-cat-tag {
-  font-size: 0.72rem;
-  color: var(--text-main);
-  background: #1e293b;
-  border: 1px solid var(--border-subtle);
-  padding: 3px 8px;
-  border-radius: 5px;
-  font-weight: 600;
-}
-
-.teacher-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-}
-
-.teacher-tag i { color: var(--accent-blue); }
-
-.note-title {
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: #fff;
-  margin-bottom: 8px;
-  line-height: 1.4;
-}
-
-.note-desc {
-  font-size: 0.84rem;
-  color: var(--text-muted);
-  line-height: 1.55;
-  margin-bottom: 20px;
-}
-
-.note-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid var(--border-subtle);
-  padding-top: 14px;
-}
-
-.btn-download {
-  background: #fff;
-  color: #000;
-  padding: 7px 14px;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  transition: opacity 0.15s ease;
-}
-
-.btn-download:hover { opacity: 0.88; }
-
-/* Admin Dashboard */
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 22px;
-  margin-bottom: 22px;
-}
-
-.btn-logout {
-  background: transparent;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  color: var(--danger);
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.btn-logout:hover { background: rgba(239, 68, 68, 0.1); }
-
-.admin-grid {
-  display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 20px;
-}
-
-.form-card { padding: 22px; }
-
-.form-card h3 {
-  margin-bottom: 16px;
-  font-size: 1.02rem;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #fff;
-}
-
-.input-group { margin-bottom: 14px; }
-
-.input-group label {
-  display: block;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-  font-weight: 600;
-}
-
-.input-group input,
-.input-group select,
-.input-group textarea,
-.inline-input input {
-  width: 100%;
-  background: #090b10;
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-  padding: 9px 12px;
-  color: #fff;
-  font-size: 0.88rem;
-  outline: none;
-}
-
-.input-group input:focus,
-.input-group select:focus,
-.input-group textarea:focus {
-  border-color: var(--border-active);
-}
-
-.helper-text {
-  display: block;
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-top: 5px;
-}
-
-.inline-input { display: flex; gap: 8px; }
-
-.btn-primary {
-  background: #fff;
-  border: none;
-  color: #000;
-  padding: 9px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: opacity 0.15s ease;
-}
-
-.btn-primary.full-width { width: 100%; margin-top: 6px; }
-.btn-primary:hover { opacity: 0.88; }
-
-.admin-sidebar { display: flex; flex-direction: column; gap: 20px; }
-
-.admin-notes-list {
-  max-height: 380px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.admin-note-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  background: #090b10;
-  border-radius: 8px;
-  border: 1px solid var(--border-subtle);
-}
-
-.admin-note-item span {
-  font-size: 0.82rem;
-  max-width: 190px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Edit & Delete Buttons */
-.action-btns {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.btn-edit {
-  background: transparent;
-  border: none;
-  color: var(--accent-blue);
-  cursor: pointer;
-  font-size: 1rem;
-  transition: opacity 0.15s;
-}
-
-.btn-edit:hover { opacity: 0.75; }
-
-.btn-del {
-  background: transparent;
-  border: none;
-  color: var(--danger);
-  cursor: pointer;
-  font-size: 1rem;
-  transition: opacity 0.15s;
-}
-
-.btn-del:hover { opacity: 0.75; }
-
-/* ================= ACADEMIC FOOTER ================= */
-.portal-footer {
-  border-top: 1px solid var(--border-subtle);
-  background: rgba(9, 11, 16, 0.95);
-  padding: 22px 0;
-  width: 100%;
-  margin-top: auto;
-}
-
-.footer-inner {
-  max-width: 1140px;
-  width: 92%;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.footer-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  flex-wrap: wrap;
-}
-
-.creator-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-subtle);
-  padding: 4px 10px;
-  border-radius: 6px;
-  color: var(--text-main);
-  font-size: 0.75rem;
-}
-
-.creator-tag i { color: var(--accent-blue); }
-.creator-tag b { color: #fff; letter-spacing: 0.02em; }
-
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.footer-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.footer-btn:hover { color: #fff; text-decoration: underline; }
-.footer-divider { color: var(--border-active); font-size: 0.8rem; }
-
-/* Policy Modal Body */
-.modal-policy {
-  max-width: 500px;
-  text-align: left;
-}
-
-.policy-body {
-  margin-top: 15px;
-  max-height: 340px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-.policy-body h4 {
-  font-size: 0.88rem;
-  color: #fff;
-  margin: 12px 0 4px;
-}
-
-.policy-body p {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  line-height: 1.55;
-}
-
-/* ================= MODERN MODALS & TOP-RIGHT ✕ ================= */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.82);
-  backdrop-filter: blur(10px);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.modal-backdrop.active { display: flex; }
-
-.modal-content {
-  position: relative; /* Anchor the ✕ button to top-right */
-  width: 90%;
-  max-width: 380px;
-  padding: 26px;
-  text-align: center;
-  background: #0f141e;
-  border: 1px solid var(--border-active);
-  border-radius: 12px;
-}
-
-/* SLEEK TOP-RIGHT ✕ BUTTON */
-.modal-close-btn {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1.25rem;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-
-.modal-close-btn:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.modal-icon { font-size: 2.2rem; color: var(--text-main); margin-bottom: 8px; }
-.text-left { text-align: left; }
-.modal-actions { display: flex; gap: 8px; margin-top: 14px; }
-
-.btn-outline {
-  flex: 1;
-  background: transparent;
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  border-radius: 8px;
-  cursor: pointer;
-  padding: 8px;
-}
-
-.btn-outline:hover { color: #fff; border-color: var(--border-active); }
-
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #1e293b;
-  border: 1px solid var(--border-active);
-  padding: 10px 18px;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 0.82rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  display: none;
-  z-index: 1000;
-}
-
-@media (max-width: 820px) {
-  .admin-grid { grid-template-columns: 1fr; }
-  .hero-section { padding: 22px; }
-  .footer-inner { flex-direction: column; text-align: center; justify-content: center; }
-  .footer-left { justify-content: center; }
-}
+// --- STATE ---
+let subjects = ["All"];
+let notes = [];
+
+// Session State (Zero secrets in browser — protected on Cloudflare server)
+let currentTeacher = localStorage.getItem("currentTeacher") || null;
+let teacherSecretKey = localStorage.getItem("teacherSecretKey") || null;
+let selectedSubject = "All";
+
+// Active item being edited/deleted
+let targetSubjectForEdit = "";
+let targetDeleteAction = null;
+
+// --- FETCH DATA FROM CLOUDFLARE D1 ---
+async function fetchGlobalData() {
+  try {
+    // 1. Fetch Subjects
+    const subRes = await fetch('/api/subjects');
+    const subData = await subRes.json();
+    
+    // Seed ONLY ONE single testing subject if completely empty
+    if (!subData || subData.length === 0) {
+      if (teacherSecretKey) {
+        await fetch('/api/subjects', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Teacher-Key': teacherSecretKey
+          },
+          body: JSON.stringify({ name: "Demo Subject" })
+        });
+      }
+      subjects = ["All", "Demo Subject"];
+    } else {
+      subjects = ["All", ...subData.map(s => s.name)];
+    }
+
+    // 2. Fetch Notes
+    const notesRes = await fetch('/api/notes');
+    notes = await notesRes.json();
+
+    // If active filtered subject was deleted, reset to "All"
+    if (!subjects.includes(selectedSubject)) {
+      selectedSubject = "All";
+    }
+
+    // Render Portal
+    renderStudentView();
+    if (currentTeacher && teacherSecretKey) {
+      renderTeacherPanel();
+    }
+  } catch (err) {
+    console.error("Failed to load cloud data", err);
+  }
+}
+
+// --- TAB SWITCHER ---
+function switchView(viewName) {
+  const studentView = document.getElementById("studentView");
+  const teacherView = document.getElementById("teacherView");
+  const tabStudentBtn = document.getElementById("tabStudentBtn");
+  const tabTeacherBtn = document.getElementById("tabTeacherBtn");
+
+  if (viewName === "student") {
+    studentView.classList.add("active");
+    teacherView.classList.remove("active");
+    tabStudentBtn.classList.add("active");
+    tabTeacherBtn.classList.remove("active");
+    renderStudentView();
+  } else {
+    if (!currentTeacher || !teacherSecretKey) {
+      openTeacherLogin();
+      return;
+    }
+    teacherView.classList.add("active");
+    studentView.classList.remove("active");
+    tabTeacherBtn.classList.add("active");
+    tabStudentBtn.classList.remove("active");
+    document.getElementById("teacherNameDisplay").innerText = currentTeacher;
+    renderTeacherPanel();
+  }
+}
+
+// --- SECURE TEACHER LOGIN ---
+function openTeacherLogin() {
+  if (currentTeacher && teacherSecretKey) {
+    switchView("teacher");
+    return;
+  }
+  document.getElementById("teacherAuthModal").classList.add("active");
+  document.getElementById("loginTeacherName").value = "";
+  document.getElementById("loginTeacherPin").value = "";
+}
+
+function closeAuthModal() {
+  document.getElementById("teacherAuthModal").classList.remove("active");
+}
+
+// Verified by Cloudflare server
+async function verifyTeacherAccess() {
+  const name = document.getElementById("loginTeacherName").value.trim();
+  const enteredPass = document.getElementById("loginTeacherPin").value.trim();
+
+  if (!name || !enteredPass) {
+    showToast("Please enter both Name and Password");
+    return;
+  }
+
+  showToast("Verifying with Cloudflare security...");
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: enteredPass })
+    });
+
+    if (res.ok) {
+      currentTeacher = name;
+      teacherSecretKey = enteredPass;
+      localStorage.setItem("currentTeacher", currentTeacher);
+      localStorage.setItem("teacherSecretKey", teacherSecretKey);
+
+      closeAuthModal();
+      showToast(`Welcome, ${name}!`);
+      switchView("teacher");
+    } else {
+      showToast("Access Denied: Incorrect Faculty Password!");
+    }
+  } catch (err) {
+    showToast("Network error during login.");
+  }
+}
+
+function logoutTeacher() {
+  currentTeacher = null;
+  teacherSecretKey = null;
+  localStorage.removeItem("currentTeacher");
+  localStorage.removeItem("teacherSecretKey");
+  showToast("Logged out successfully.");
+  switchView("student");
+}
+
+// --- STUDENT VIEW ---
+function renderStudentView() {
+  renderCategoryPills();
+  renderNotesGrid();
+}
+
+function renderCategoryPills() {
+  const bar = document.getElementById("categoryFilterBar");
+  bar.innerHTML = subjects.map(sub => `
+    <button class="category-chip ${selectedSubject === sub ? 'active' : ''}" onclick="filterBySubject('${sub}')">
+      ${sub}
+    </button>
+  `).join("");
+}
+
+function filterBySubject(sub) {
+  selectedSubject = sub;
+  renderStudentView();
+}
+
+function handleSearch() {
+  renderNotesGrid();
+}
+
+function renderNotesGrid() {
+  const grid = document.getElementById("notesListGrid");
+  const query = document.getElementById("searchInput").value.toLowerCase();
+
+  const filtered = notes.filter(n => {
+    const matchesSub = selectedSubject === "All" || n.subject === selectedSubject;
+    const matchesQuery = n.title.toLowerCase().includes(query) ||
+                         n.description.toLowerCase().includes(query) ||
+                         n.teacher.toLowerCase().includes(query) ||
+                         n.subject.toLowerCase().includes(query);
+    return matchesSub && matchesQuery;
+  });
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column: 1/-1; text-align: center; padding: 45px; color: var(--text-muted);">
+        <i class="ri-inbox-line" style="font-size: 2.5rem; display: block; margin-bottom: 8px;"></i>
+        <p>No notes published in this subject.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(note => `
+    <div class="glass-card note-card">
+      <div>
+        <div class="note-header">
+          <span class="note-cat-tag">${note.subject}</span>
+          <span style="font-size: 0.72rem; color: var(--text-muted);">${note.date}</span>
+        </div>
+        <div class="teacher-tag">
+          <i class="ri-user-follow-line"></i> ${note.teacher}
+        </div>
+        <h4 class="note-title">${note.title}</h4>
+        <p class="note-desc">${note.description}</p>
+      </div>
+      <div class="note-footer">
+        <span style="font-size: 0.75rem; color: var(--text-muted);">
+          <i class="ri-google-drive-fill" style="color: #34d399;"></i> Google Drive
+        </span>
+        <a href="${note.driveUrl}" target="_blank" class="btn-download">
+          <i class="ri-external-link-line"></i> View / Download
+        </a>
+      </div>
+    </div>
+  `).join("");
+}
+
+// --- TEACHER ACTIONS ---
+function renderTeacherPanel() {
+  const select = document.getElementById("noteCategorySelect");
+  const actualSubjects = subjects.filter(s => s !== "All");
+  select.innerHTML = actualSubjects.map(s => `<option value="${s}">${s}</option>`).join("");
+
+  // Subjects Manager with In-Site Modals
+  const subList = document.getElementById("adminSubjectsList");
+  if (actualSubjects.length === 0) {
+    subList.innerHTML = `<p style="font-size: 0.82rem; color: var(--text-muted);">No subjects created yet.</p>`;
+  } else {
+    subList.innerHTML = actualSubjects.map(sub => `
+      <div class="admin-note-item">
+        <span><i class="ri-book-line" style="color: var(--accent-blue); margin-right: 5px;"></i>${sub}</span>
+        <div class="action-btns">
+          <button class="btn-edit" onclick="openEditModal('${sub}')" title="Rename Subject">
+            <i class="ri-pencil-line"></i>
+          </button>
+          <button class="btn-del" onclick="triggerDeleteSubject('${sub}')" title="Delete Subject">
+            <i class="ri-delete-bin-line"></i>
+          </button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  // Published Notes List
+  const list = document.getElementById("adminNotesList");
+  const myNotes = notes.filter(n => n.teacher === currentTeacher);
+
+  if (myNotes.length === 0) {
+    list.innerHTML = `<p style="font-size: 0.82rem; color: var(--text-muted);">You haven't posted any notes yet.</p>`;
+    return;
+  }
+
+  list.innerHTML = myNotes.map(n => `
+    <div class="admin-note-item">
+      <div>
+        <span>${n.title}</span>
+        <p style="font-size: 0.72rem; color: var(--accent-blue);">${n.subject}</p>
+      </div>
+      <button class="btn-del" onclick="triggerDeleteNote('${n.id}', '${n.title}')" title="Delete note">
+        <i class="ri-delete-bin-line"></i>
+      </button>
+    </div>
+  `).join("");
+}
+
+// --- IN-SITE EDIT SUBJECT MODAL LOGIC ---
+function openEditModal(subName) {
+  targetSubjectForEdit = subName;
+  document.getElementById("editSubjectInput").value = subName;
+  document.getElementById("editSubjectModal").classList.add("active");
+  document.getElementById("editSubjectInput").focus();
+}
+
+function closeEditModal() {
+  document.getElementById("editSubjectModal").classList.remove("active");
+  targetSubjectForEdit = "";
+}
+
+async function confirmEditSubject() {
+  const newName = document.getElementById("editSubjectInput").value.trim();
+  if (!newName || newName === targetSubjectForEdit) {
+    closeEditModal();
+    return;
+  }
+
+  showToast("Updating subject...");
+  try {
+    const res = await fetch('/api/subjects', {
+      method: 'PUT',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Teacher-Key': teacherSecretKey
+      },
+      body: JSON.stringify({ oldName: targetSubjectForEdit, newName: newName })
+    });
+
+    if (res.ok) {
+      showToast(`Renamed to "${newName}"!`);
+      closeEditModal();
+      fetchGlobalData();
+    } else {
+      showToast("Access Denied: You must be logged in as a teacher.");
+    }
+  } catch (err) {
+    showToast("Failed to rename subject.");
+  }
+}
+
+// --- IN-SITE DELETE CONFIRM MODAL LOGIC ---
+function closeDeleteModal() {
+  document.getElementById("deleteConfirmModal").classList.remove("active");
+  targetDeleteAction = null;
+}
+
+function triggerDeleteSubject(subName) {
+  if (localStorage.getItem("skip_delete_confirm") === "true") {
+    executeDeleteSubject(subName);
+    return;
+  }
+
+  document.getElementById("deleteModalTitle").innerText = `Delete "${subName}"?`;
+  document.getElementById("deleteModalDesc").innerText = "This will permanently delete this subject and all notes inside it.";
+  
+  targetDeleteAction = () => executeDeleteSubject(subName);
+  document.getElementById("deleteConfirmModal").classList.add("active");
+}
+
+function triggerDeleteNote(id, title) {
+  if (localStorage.getItem("skip_delete_confirm") === "true") {
+    executeDeleteNote(id);
+    return;
+  }
+
+  document.getElementById("deleteModalTitle").innerText = `Delete Note?`;
+  document.getElementById("deleteModalDesc").innerText = `Remove "${title}" from the portal?`;
+
+  targetDeleteAction = () => executeDeleteNote(id);
+  document.getElementById("deleteConfirmModal").classList.add("active");
+}
+
+document.getElementById("confirmDeleteActionBtn").onclick = function() {
+  if (document.getElementById("dontAskDeleteAgain").checked) {
+    localStorage.setItem("skip_delete_confirm", "true");
+  }
+  if (targetDeleteAction) {
+    targetDeleteAction();
+  }
+  closeDeleteModal();
+};
+
+async function executeDeleteSubject(name) {
+  showToast("Deleting subject & its notes...");
+  try {
+    const res = await fetch(`/api/subjects?name=${encodeURIComponent(name)}`, { 
+      method: 'DELETE',
+      headers: { 'X-Teacher-Key': teacherSecretKey }
+    });
+    if (res.ok) {
+      if (selectedSubject === name) {
+        selectedSubject = "All";
+      }
+      showToast(`Subject "${name}" & its files removed.`);
+      fetchGlobalData();
+    } else {
+      showToast("Access Denied: Unauthorized.");
+    }
+  } catch (err) {
+    showToast("Failed to delete subject.");
+  }
+}
+
+async function executeDeleteNote(id) {
+  try {
+    const res = await fetch(`/api/notes?id=${id}`, { 
+      method: 'DELETE',
+      headers: { 'X-Teacher-Key': teacherSecretKey }
+    });
+    if (res.ok) {
+      showToast("Note deleted.");
+      fetchGlobalData();
+    } else {
+      showToast("Access Denied: Unauthorized.");
+    }
+  } catch (err) {
+    showToast("Failed to delete note.");
+  }
+}
+
+// --- ADD SUBJECT ---
+async function handleAddCategory() {
+  const input = document.getElementById("newCategoryInput");
+  const newSub = input.value.trim();
+  if (!newSub) return;
+
+  if (subjects.includes(newSub)) {
+    showToast("Subject already exists!");
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/subjects', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Teacher-Key': teacherSecretKey
+      },
+      body: JSON.stringify({ name: newSub })
+    });
+
+    if (res.ok) {
+      input.value = "";
+      showToast(`Subject "${newSub}" created!`);
+      fetchGlobalData();
+    } else {
+      showToast("Access Denied: Unauthorized.");
+    }
+  } catch (err) {
+    showToast("Failed to add subject.");
+  }
+}
+
+// --- PUBLISH NOTE ---
+async function handleCreateNote(e) {
+  e.preventDefault();
+
+  const title = document.getElementById("noteTitle").value.trim();
+  const subject = document.getElementById("noteCategorySelect").value;
+  const description = document.getElementById("noteDesc").value.trim();
+  const driveUrl = document.getElementById("driveLinkInput").value.trim();
+
+  if (!driveUrl) {
+    showToast("Please enter a link!");
+    return;
+  }
+
+  const newNote = {
+    id: Date.now().toString(),
+    title: title,
+    subject: subject,
+    teacher: currentTeacher,
+    description: description,
+    driveUrl: driveUrl,
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  };
+
+  showToast("Publishing note...");
+
+  try {
+    const res = await fetch('/api/notes', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Teacher-Key': teacherSecretKey
+      },
+      body: JSON.stringify(newNote)
+    });
+
+    if (res.ok) {
+      showToast("Published globally to all students!");
+      e.target.reset();
+      fetchGlobalData();
+    } else {
+      showToast("Access Denied: You must be logged in as a teacher.");
+    }
+  } catch (err) {
+    showToast("Network error. Please try again.");
+  }
+}
+
+// --- PRIVACY & TERMS MODALS ---
+function openPrivacyModal() {
+  document.getElementById("privacyModal").classList.add("active");
+}
+
+function closePrivacyModal() {
+  document.getElementById("privacyModal").classList.remove("active");
+}
+
+function openTermsModal() {
+  document.getElementById("termsModal").classList.add("active");
+}
+
+function closeTermsModal() {
+  document.getElementById("termsModal").classList.remove("active");
+}
+
+// Toast Alert
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.innerText = msg;
+  t.style.display = "block";
+  setTimeout(() => t.style.display = "none", 3000);
+}
+
+// Boot up portal
+fetchGlobalData();
