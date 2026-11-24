@@ -1,14 +1,10 @@
-// ========================================================
-// 🔑 OFFICIAL TEACHER SECRET PASSWORD
-// (Change this word anytime right here in GitHub!)
-// ========================================================
-const TEACHER_SECRET_PASSWORD = "teacher2026"; 
-// ========================================================
-
 // --- STATE ---
 let subjects = ["All"];
 let notes = [];
+
+// Session State (Zero hardcoded passwords here! Inspected code contains no secrets)
 let currentTeacher = localStorage.getItem("currentTeacher") || null;
+let teacherSecretKey = localStorage.getItem("teacherSecretKey") || null;
 let selectedSubject = "All";
 
 // Active item being edited/deleted
@@ -22,13 +18,18 @@ async function fetchGlobalData() {
     const subRes = await fetch('/api/subjects');
     const subData = await subRes.json();
     
-    // Seed ONLY ONE clean testing subject if completely empty
+    // Seed ONLY ONE single testing subject if completely empty
     if (!subData || subData.length === 0) {
-      await fetch('/api/subjects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: "Demo Subject" })
-      });
+      if (teacherSecretKey) {
+        await fetch('/api/subjects', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Teacher-Key': teacherSecretKey
+          },
+          body: JSON.stringify({ name: "Demo Subject" })
+        });
+      }
       subjects = ["All", "Demo Subject"];
     } else {
       subjects = ["All", ...subData.map(s => s.name)];
@@ -45,7 +46,7 @@ async function fetchGlobalData() {
 
     // Render Portal
     renderStudentView();
-    if (currentTeacher) {
+    if (currentTeacher && teacherSecretKey) {
       renderTeacherPanel();
     }
   } catch (err) {
@@ -67,7 +68,7 @@ function switchView(viewName) {
     tabTeacherBtn.classList.remove("active");
     renderStudentView();
   } else {
-    if (!currentTeacher) {
+    if (!currentTeacher || !teacherSecretKey) {
       openTeacherLogin();
       return;
     }
@@ -82,7 +83,7 @@ function switchView(viewName) {
 
 // --- SECURE TEACHER LOGIN ---
 function openTeacherLogin() {
-  if (currentTeacher) {
+  if (currentTeacher && teacherSecretKey) {
     switchView("teacher");
     return;
   }
@@ -95,32 +96,48 @@ function closeAuthModal() {
   document.getElementById("teacherAuthModal").classList.remove("active");
 }
 
-function verifyTeacherAccess() {
+// Verified by Cloudflare server
+async function verifyTeacherAccess() {
   const name = document.getElementById("loginTeacherName").value.trim();
   const enteredPass = document.getElementById("loginTeacherPin").value.trim();
 
-  if (!name) {
-    showToast("Please enter your Name / Title");
+  if (!name || !enteredPass) {
+    showToast("Please enter both Name and Password");
     return;
   }
 
-  // Check against the secret password you control
-  if (enteredPass !== TEACHER_SECRET_PASSWORD) {
-    showToast("Access Denied: Incorrect Faculty Password!");
-    return;
-  }
+  showToast("Verifying with Cloudflare security...");
 
-  // Password correct! Log them in and remember them
-  currentTeacher = name;
-  localStorage.setItem("currentTeacher", currentTeacher);
-  closeAuthModal();
-  showToast(`Welcome, ${name}!`);
-  switchView("teacher");
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: enteredPass })
+    });
+
+    if (res.ok) {
+      // Password is authentic on server
+      currentTeacher = name;
+      teacherSecretKey = enteredPass;
+      localStorage.setItem("currentTeacher", currentTeacher);
+      localStorage.setItem("teacherSecretKey", teacherSecretKey);
+
+      closeAuthModal();
+      showToast(`Welcome, ${name}!`);
+      switchView("teacher");
+    } else {
+      showToast("Access Denied: Incorrect Faculty Password!");
+    }
+  } catch (err) {
+    showToast("Network error during login.");
+  }
 }
 
 function logoutTeacher() {
   currentTeacher = null;
+  teacherSecretKey = null;
   localStorage.removeItem("currentTeacher");
+  localStorage.removeItem("teacherSecretKey");
   showToast("Logged out successfully.");
   switchView("student");
 }
@@ -268,7 +285,10 @@ async function confirmEditSubject() {
   try {
     const res = await fetch('/api/subjects', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Teacher-Key': teacherSecretKey
+      },
       body: JSON.stringify({ oldName: targetSubjectForEdit, newName: newName })
     });
 
@@ -276,6 +296,8 @@ async function confirmEditSubject() {
       showToast(`Renamed to "${newName}"!`);
       closeEditModal();
       fetchGlobalData();
+    } else {
+      showToast("Access Denied: You must be logged in as a teacher.");
     }
   } catch (err) {
     showToast("Failed to rename subject.");
@@ -327,13 +349,18 @@ document.getElementById("confirmDeleteActionBtn").onclick = function() {
 async function executeDeleteSubject(name) {
   showToast("Deleting subject & its notes...");
   try {
-    const res = await fetch(`/api/subjects?name=${encodeURIComponent(name)}`, { method: 'DELETE' });
+    const res = await fetch(`/api/subjects?name=${encodeURIComponent(name)}`, { 
+      method: 'DELETE',
+      headers: { 'X-Teacher-Key': teacherSecretKey }
+    });
     if (res.ok) {
       if (selectedSubject === name) {
         selectedSubject = "All";
       }
       showToast(`Subject "${name}" & its files removed.`);
       fetchGlobalData();
+    } else {
+      showToast("Access Denied: Unauthorized.");
     }
   } catch (err) {
     showToast("Failed to delete subject.");
@@ -342,10 +369,15 @@ async function executeDeleteSubject(name) {
 
 async function executeDeleteNote(id) {
   try {
-    const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
+    const res = await fetch(`/api/notes?id=${id}`, { 
+      method: 'DELETE',
+      headers: { 'X-Teacher-Key': teacherSecretKey }
+    });
     if (res.ok) {
       showToast("Note deleted.");
       fetchGlobalData();
+    } else {
+      showToast("Access Denied: Unauthorized.");
     }
   } catch (err) {
     showToast("Failed to delete note.");
@@ -366,7 +398,10 @@ async function handleAddCategory() {
   try {
     const res = await fetch('/api/subjects', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Teacher-Key': teacherSecretKey
+      },
       body: JSON.stringify({ name: newSub })
     });
 
@@ -374,6 +409,8 @@ async function handleAddCategory() {
       input.value = "";
       showToast(`Subject "${newSub}" created!`);
       fetchGlobalData();
+    } else {
+      showToast("Access Denied: Unauthorized.");
     }
   } catch (err) {
     showToast("Failed to add subject.");
@@ -409,7 +446,10 @@ async function handleCreateNote(e) {
   try {
     const res = await fetch('/api/notes', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Teacher-Key': teacherSecretKey
+      },
       body: JSON.stringify(newNote)
     });
 
@@ -418,7 +458,7 @@ async function handleCreateNote(e) {
       e.target.reset();
       fetchGlobalData();
     } else {
-      showToast("Error saving note.");
+      showToast("Access Denied: You must be logged in as a teacher.");
     }
   } catch (err) {
     showToast("Network error. Please try again.");
