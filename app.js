@@ -5,23 +5,39 @@ let teachers = JSON.parse(localStorage.getItem("eduvault_teachers")) || {};
 let currentTeacher = sessionStorage.getItem("currentTeacher") || null;
 let selectedSubject = "All";
 
-// --- LOAD NOTES FROM CLOUDFLARE DATABASE GLOBALLY ---
-async function fetchGlobalNotes() {
+// --- FETCH DATA FROM CLOUDFLARE D1 ---
+async function fetchGlobalData() {
   try {
-    const res = await fetch('/api/notes');
-    notes = await res.json();
+    // 1. Fetch Subjects
+    const subRes = await fetch('/api/subjects');
+    const subData = await subRes.json();
+    
+    // Seed default subjects if database is brand new
+    if (!subData || subData.length === 0) {
+      const defaults = ["Computer Networks", "Database Systems", "Operating Systems", "Mathematics"];
+      for (const d of defaults) {
+        await fetch('/api/subjects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: d })
+        });
+      }
+      subjects = ["All", ...defaults];
+    } else {
+      subjects = ["All", ...subData.map(s => s.name)];
+    }
 
-    // Auto-detect subjects from all published notes
-    const extractedSubjects = ["All", ...new Set(notes.map(n => n.subject))];
-    const savedCustomSubjects = JSON.parse(localStorage.getItem("eduvault_custom_subjects")) || [];
-    subjects = [...new Set([...extractedSubjects, ...savedCustomSubjects])];
+    // 2. Fetch Notes
+    const notesRes = await fetch('/api/notes');
+    notes = await notesRes.json();
 
+    // Render Portal
     renderStudentView();
     if (currentTeacher) {
       renderTeacherPanel();
     }
   } catch (err) {
-    console.error("Failed to fetch notes from Cloudflare D1", err);
+    console.error("Failed to load cloud data", err);
   }
 }
 
@@ -101,7 +117,7 @@ function logoutTeacher() {
   switchView("student");
 }
 
-// --- STUDENT PORTAL RENDERING ---
+// --- STUDENT VIEW RENDERING ---
 function renderStudentView() {
   renderCategoryPills();
   renderNotesGrid();
@@ -142,7 +158,7 @@ function renderNotesGrid() {
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 45px; color: var(--text-muted);">
         <i class="ri-inbox-line" style="font-size: 2.5rem; display: block; margin-bottom: 8px;"></i>
-        <p>No notes published yet.</p>
+        <p>No notes published in this subject.</p>
       </div>`;
     return;
   }
@@ -172,12 +188,34 @@ function renderNotesGrid() {
   `).join("");
 }
 
-// --- TEACHER ACTIONS (SAVES TO CLOUDFLARE D1) ---
+// --- TEACHER ACTIONS (SUBJECTS & NOTES) ---
 function renderTeacherPanel() {
+  // Populate dropdown
   const select = document.getElementById("noteCategorySelect");
   const actualSubjects = subjects.filter(s => s !== "All");
   select.innerHTML = actualSubjects.map(s => `<option value="${s}">${s}</option>`).join("");
 
+  // Populate Subject Management List with Edit & Delete Buttons
+  const subList = document.getElementById("adminSubjectsList");
+  if (actualSubjects.length === 0) {
+    subList.innerHTML = `<p style="font-size: 0.82rem; color: var(--text-muted);">No subjects created yet.</p>`;
+  } else {
+    subList.innerHTML = actualSubjects.map(sub => `
+      <div class="admin-note-item">
+        <span><i class="ri-book-line" style="color: var(--accent-blue); margin-right: 5px;"></i>${sub}</span>
+        <div class="action-btns">
+          <button class="btn-edit" onclick="handleEditCategory('${sub}')" title="Rename Subject">
+            <i class="ri-pencil-line"></i>
+          </button>
+          <button class="btn-del" onclick="handleDeleteCategory('${sub}')" title="Delete Subject">
+            <i class="ri-delete-bin-line"></i>
+          </button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  // Populate Published Notes List
   const list = document.getElementById("adminNotesList");
   const myNotes = notes.filter(n => n.teacher === currentTeacher);
 
@@ -199,7 +237,80 @@ function renderTeacherPanel() {
   `).join("");
 }
 
-// Publish note to Cloudflare D1
+// 1. ADD SUBJECT
+async function handleAddCategory() {
+  const input = document.getElementById("newCategoryInput");
+  const newSub = input.value.trim();
+  if (!newSub) return;
+
+  if (subjects.includes(newSub)) {
+    showToast("Subject already exists!");
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/subjects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newSub })
+    });
+
+    if (res.ok) {
+      input.value = "";
+      showToast(`Subject "${newSub}" added!`);
+      fetchGlobalData();
+    }
+  } catch (err) {
+    showToast("Failed to add subject.");
+  }
+}
+
+// 2. EDIT / RENAME SUBJECT
+async function handleEditCategory(oldName) {
+  const newName = prompt(`Rename subject "${oldName}" to:`, oldName);
+  if (!newName || newName.trim() === "" || newName.trim() === oldName) return;
+
+  const trimmed = newName.trim();
+  showToast("Updating subject...");
+
+  try {
+    const res = await fetch('/api/subjects', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ oldName: oldName, newName: trimmed })
+    });
+
+    if (res.ok) {
+      showToast(`Renamed to "${trimmed}"!`);
+      fetchGlobalData();
+    }
+  } catch (err) {
+    showToast("Failed to rename subject.");
+  }
+}
+
+// 3. DELETE SUBJECT
+async function handleDeleteCategory(name) {
+  const ok = confirm(`Are you sure you want to delete "${name}"?`);
+  if (!ok) return;
+
+  showToast("Deleting subject...");
+
+  try {
+    const res = await fetch(`/api/subjects?name=${encodeURIComponent(name)}`, {
+      method: 'DELETE'
+    });
+
+    if (res.ok) {
+      showToast(`Subject "${name}" deleted.`);
+      fetchGlobalData();
+    }
+  } catch (err) {
+    showToast("Failed to delete subject.");
+  }
+}
+
+// 4. PUBLISH NOTE
 async function handleCreateNote(e) {
   e.preventDefault();
 
@@ -223,7 +334,7 @@ async function handleCreateNote(e) {
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   };
 
-  showToast("Publishing to Cloudflare D1...");
+  showToast("Publishing note...");
 
   try {
     const res = await fetch('/api/notes', {
@@ -235,44 +346,22 @@ async function handleCreateNote(e) {
     if (res.ok) {
       showToast("Published globally to all students!");
       e.target.reset();
-      fetchGlobalNotes();
+      fetchGlobalData();
     } else {
-      showToast("Error saving note to database.");
+      showToast("Error saving note.");
     }
   } catch (err) {
     showToast("Network error. Please try again.");
   }
 }
 
-// Add Subject
-function handleAddCategory() {
-  const input = document.getElementById("newCategoryInput");
-  const newSub = input.value.trim();
-  if (!newSub) return;
-
-  if (subjects.includes(newSub)) {
-    showToast("Subject already exists!");
-    return;
-  }
-
-  subjects.push(newSub);
-  const saved = JSON.parse(localStorage.getItem("eduvault_custom_subjects")) || [];
-  saved.push(newSub);
-  localStorage.setItem("eduvault_custom_subjects", JSON.stringify(saved));
-
-  renderTeacherPanel();
-  renderCategoryPills();
-  input.value = "";
-  showToast(`Subject "${newSub}" created!`);
-}
-
-// Delete note from Cloudflare D1
+// 5. DELETE NOTE
 async function deleteNote(id) {
   try {
     const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
     if (res.ok) {
       showToast("Note deleted from database.");
-      fetchGlobalNotes();
+      fetchGlobalData();
     }
   } catch (err) {
     showToast("Failed to delete note.");
@@ -287,5 +376,5 @@ function showToast(msg) {
   setTimeout(() => t.style.display = "none", 3000);
 }
 
-// Initial Boot: fetch live notes from cloud
-fetchGlobalNotes();
+// Boot up portal
+fetchGlobalData();
