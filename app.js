@@ -2,7 +2,9 @@
 let subjects = ["All"];
 let notes = [];
 let teachers = JSON.parse(localStorage.getItem("eduvault_teachers")) || {};
-let currentTeacher = sessionStorage.getItem("currentTeacher") || null;
+
+// REMEMBERS LOGIN PERMANENTLY (Even when closing tab or browser)
+let currentTeacher = localStorage.getItem("currentTeacher") || null;
 let selectedSubject = "All";
 
 // Active item being edited/deleted
@@ -56,6 +58,7 @@ function switchView(viewName) {
     tabTeacherBtn.classList.remove("active");
     renderStudentView();
   } else {
+    // If teacher is already remembered, jump straight into dashboard
     if (!currentTeacher) {
       openTeacherLogin();
       return;
@@ -105,16 +108,17 @@ function loginOrRegisterTeacher() {
     showToast(`Registered successfully as ${name}!`);
   }
 
+  // Save login PERMANENTLY in localStorage
   currentTeacher = name;
-  sessionStorage.setItem("currentTeacher", currentTeacher);
+  localStorage.setItem("currentTeacher", currentTeacher);
   closeAuthModal();
   switchView("teacher");
 }
 
 function logoutTeacher() {
   currentTeacher = null;
-  sessionStorage.removeItem("currentTeacher");
-  showToast("Logged out.");
+  localStorage.removeItem("currentTeacher");
+  showToast("Logged out successfully.");
   switchView("student");
 }
 
@@ -282,7 +286,6 @@ function closeDeleteModal() {
 }
 
 function triggerDeleteSubject(subName) {
-  // Check if teacher selected "Don't ask again"
   if (localStorage.getItem("skip_delete_confirm") === "true") {
     executeDeleteSubject(subName);
     return;
@@ -309,7 +312,6 @@ function triggerDeleteNote(id, title) {
 }
 
 document.getElementById("confirmDeleteActionBtn").onclick = function() {
-  // Save preference if checkbox checked
   if (document.getElementById("dontAskDeleteAgain").checked) {
     localStorage.setItem("skip_delete_confirm", "true");
   }
