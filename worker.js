@@ -2,8 +2,11 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    // Auto-create subjects table if it doesn't exist
+    // Auto-create tables if they don't exist
     await env.DB.prepare("CREATE TABLE IF NOT EXISTS subjects (name TEXT PRIMARY KEY)").run();
+    await env.DB.prepare(
+      "CREATE TABLE IF NOT EXISTS notes (id TEXT PRIMARY KEY, title TEXT, subject TEXT, teacher TEXT, description TEXT, driveUrl TEXT, date TEXT)"
+    ).run();
 
     // --- API: SUBJECTS (/api/subjects) ---
     if (url.pathname === "/api/subjects") {
@@ -31,9 +34,9 @@ export default {
       if (request.method === "PUT") {
         try {
           const { oldName, newName } = await request.json();
-          // Update the subject in subjects table
+          // Update subject name in subjects table
           await env.DB.prepare("UPDATE subjects SET name = ? WHERE name = ?").bind(newName, oldName).run();
-          // Also automatically update all notes that had this subject name!
+          // Automatically update all notes under this subject to the new name
           await env.DB.prepare("UPDATE notes SET subject = ? WHERE subject = ?").bind(newName, oldName).run();
           return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
         } catch (e) {
@@ -45,7 +48,10 @@ export default {
         try {
           const name = url.searchParams.get("name");
           if (name) {
+            // 1. Delete the subject
             await env.DB.prepare("DELETE FROM subjects WHERE name = ?").bind(name).run();
+            // 2. Cascade Delete: Delete all notes and files belonging to this subject!
+            await env.DB.prepare("DELETE FROM notes WHERE subject = ?").bind(name).run();
           }
           return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
         } catch (e) {
