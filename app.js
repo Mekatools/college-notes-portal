@@ -1,38 +1,28 @@
-// --- INITIAL SAMPLE DATA ---
-const defaultSubjects = ["All", "Computer Networks", "Database Systems", "Operating Systems", "Mathematics"];
-
-const defaultNotes = [
-  {
-    id: "1",
-    title: "Unit 1: Relational Algebra & SQL Cheat Sheet",
-    subject: "Database Systems",
-    teacher: "Prof. Sharma",
-    description: "Complete handwritten notes covering joins, queries, and normal forms directly from Google Drive.",
-    driveUrl: "https://drive.google.com",
-    date: "Nov 20, 2026"
-  },
-  {
-    id: "2",
-    title: "Process Synchronization & Semaphores",
-    subject: "Operating Systems",
-    teacher: "Dr. Verma",
-    description: "Full slide deck detailing classical IPC problems and mutex lock algorithms.",
-    driveUrl: "https://drive.google.com",
-    date: "Nov 18, 2026"
-  }
-];
-
-// --- STORAGE & STATE ---
-let subjects = JSON.parse(localStorage.getItem("eduvault_subjects")) || defaultSubjects;
-let notes = JSON.parse(localStorage.getItem("eduvault_notes")) || defaultNotes;
-let teachers = JSON.parse(localStorage.getItem("eduvault_teachers")) || {}; // { "Prof. Sharma": "1234" }
+// --- STATE ---
+let subjects = ["All"];
+let notes = [];
+let teachers = JSON.parse(localStorage.getItem("eduvault_teachers")) || {};
 let currentTeacher = sessionStorage.getItem("currentTeacher") || null;
 let selectedSubject = "All";
 
-function savePortalData() {
-  localStorage.setItem("eduvault_subjects", JSON.stringify(subjects));
-  localStorage.setItem("eduvault_notes", JSON.stringify(notes));
-  localStorage.setItem("eduvault_teachers", JSON.stringify(teachers));
+// --- LOAD NOTES FROM CLOUDFLARE DATABASE GLOBALLY ---
+async function fetchGlobalNotes() {
+  try {
+    const res = await fetch('/api/notes');
+    notes = await res.json();
+
+    // Auto-detect subjects from all published notes
+    const extractedSubjects = ["All", ...new Set(notes.map(n => n.subject))];
+    const savedCustomSubjects = JSON.parse(localStorage.getItem("eduvault_custom_subjects")) || [];
+    subjects = [...new Set([...extractedSubjects, ...savedCustomSubjects])];
+
+    renderStudentView();
+    if (currentTeacher) {
+      renderTeacherPanel();
+    }
+  } catch (err) {
+    console.error("Failed to fetch notes from Cloudflare D1", err);
+  }
 }
 
 // --- TAB SWITCHER ---
@@ -49,7 +39,6 @@ function switchView(viewName) {
     tabTeacherBtn.classList.remove("active");
     renderStudentView();
   } else {
-    // Check if teacher is logged in
     if (!currentTeacher) {
       openTeacherLogin();
       return;
@@ -87,7 +76,6 @@ function loginOrRegisterTeacher() {
     return;
   }
 
-  // If teacher exists, check PIN. If new teacher, register them automatically.
   if (teachers[name]) {
     if (teachers[name] !== pin) {
       showToast("Incorrect PIN for this teacher name!");
@@ -96,7 +84,7 @@ function loginOrRegisterTeacher() {
     showToast(`Welcome back, ${name}!`);
   } else {
     teachers[name] = pin;
-    savePortalData();
+    localStorage.setItem("eduvault_teachers", JSON.stringify(teachers));
     showToast(`Registered successfully as ${name}!`);
   }
 
@@ -154,7 +142,7 @@ function renderNotesGrid() {
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 45px; color: var(--text-muted);">
         <i class="ri-inbox-line" style="font-size: 2.5rem; display: block; margin-bottom: 8px;"></i>
-        <p>No notes found in this category.</p>
+        <p>No notes published yet.</p>
       </div>`;
     return;
   }
@@ -176,7 +164,7 @@ function renderNotesGrid() {
         <span style="font-size: 0.75rem; color: var(--text-muted);">
           <i class="ri-google-drive-fill" style="color: #34d399;"></i> Google Drive
         </span>
-        <a href="${cleanDriveUrl(note.driveUrl)}" target="_blank" class="btn-download">
+        <a href="${note.driveUrl}" target="_blank" class="btn-download">
           <i class="ri-external-link-line"></i> View / Download
         </a>
       </div>
@@ -184,21 +172,12 @@ function renderNotesGrid() {
   `).join("");
 }
 
-// Convert Google Drive share link into an accessible link
-function cleanDriveUrl(url) {
-  if (!url) return "#";
-  // If teacher pastes a standard share link, make sure it opens directly
-  return url.trim();
-}
-
-// --- TEACHER ADMIN ACTIONS ---
+// --- TEACHER ACTIONS (SAVES TO CLOUDFLARE D1) ---
 function renderTeacherPanel() {
-  // Populate subject dropdown
   const select = document.getElementById("noteCategorySelect");
   const actualSubjects = subjects.filter(s => s !== "All");
   select.innerHTML = actualSubjects.map(s => `<option value="${s}">${s}</option>`).join("");
 
-  // Show only this teacher's published notes
   const list = document.getElementById("adminNotesList");
   const myNotes = notes.filter(n => n.teacher === currentTeacher);
 
@@ -220,8 +199,8 @@ function renderTeacherPanel() {
   `).join("");
 }
 
-// Publish note with Drive Link
-function handleCreateNote(e) {
+// Publish note to Cloudflare D1
+async function handleCreateNote(e) {
   e.preventDefault();
 
   const title = document.getElementById("noteTitle").value.trim();
@@ -229,8 +208,8 @@ function handleCreateNote(e) {
   const description = document.getElementById("noteDesc").value.trim();
   const driveUrl = document.getElementById("driveLinkInput").value.trim();
 
-  if (!driveUrl.includes("drive.google.com") && !driveUrl.includes("http")) {
-    showToast("Please enter a valid link!");
+  if (!driveUrl) {
+    showToast("Please enter a link!");
     return;
   }
 
@@ -244,14 +223,28 @@ function handleCreateNote(e) {
     date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   };
 
-  notes.unshift(newNote);
-  savePortalData();
-  renderTeacherPanel();
-  e.target.reset();
-  showToast("Note published to students!");
+  showToast("Publishing to Cloudflare D1...");
+
+  try {
+    const res = await fetch('/api/notes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newNote)
+    });
+
+    if (res.ok) {
+      showToast("Published globally to all students!");
+      e.target.reset();
+      fetchGlobalNotes();
+    } else {
+      showToast("Error saving note to database.");
+    }
+  } catch (err) {
+    showToast("Network error. Please try again.");
+  }
 }
 
-// Add new subject
+// Add Subject
 function handleAddCategory() {
   const input = document.getElementById("newCategoryInput");
   const newSub = input.value.trim();
@@ -263,21 +256,30 @@ function handleAddCategory() {
   }
 
   subjects.push(newSub);
-  savePortalData();
+  const saved = JSON.parse(localStorage.getItem("eduvault_custom_subjects")) || [];
+  saved.push(newSub);
+  localStorage.setItem("eduvault_custom_subjects", JSON.stringify(saved));
+
   renderTeacherPanel();
+  renderCategoryPills();
   input.value = "";
   showToast(`Subject "${newSub}" created!`);
 }
 
-// Delete note
-function deleteNote(id) {
-  notes = notes.filter(n => n.id !== id);
-  savePortalData();
-  renderTeacherPanel();
-  showToast("Note deleted.");
+// Delete note from Cloudflare D1
+async function deleteNote(id) {
+  try {
+    const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      showToast("Note deleted from database.");
+      fetchGlobalNotes();
+    }
+  } catch (err) {
+    showToast("Failed to delete note.");
+  }
 }
 
-// Toast message
+// Toast Alert
 function showToast(msg) {
   const t = document.getElementById("toast");
   t.innerText = msg;
@@ -285,5 +287,5 @@ function showToast(msg) {
   setTimeout(() => t.style.display = "none", 3000);
 }
 
-// Boot up portal
-renderStudentView();
+// Initial Boot: fetch live notes from cloud
+fetchGlobalNotes();
