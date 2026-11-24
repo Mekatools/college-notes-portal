@@ -38,10 +38,9 @@
     <section id="studentView" class="view-panel active">
       <div class="glass-card hero-section">
         <div class="hero-text">
-          <!-- SAFE & PROFESSIONAL TAG (No legal issues with college) -->
           <span class="badge">Academic Resource Archive</span>
           <h1>Faculty Notes & Study Materials</h1>
-          <p>Find lecture notes, study materials, and syllabus modules shared by faculty professors from their Google Drive.</p>
+          <p>Find lecture notes, study materials, and syllabus modules shared by faculty professors from Cloudflare storage and Google Drive.</p>
         </div>
         <div class="search-box glass-card">
           <i class="ri-search-line"></i>
@@ -89,13 +88,37 @@
               <textarea id="noteDesc" rows="3" placeholder="Brief note or instructions for students..." required></textarea>
             </div>
 
+            <!-- HYBRID ATTACHMENT SWITCHER -->
             <div class="input-group">
-              <label>Google Drive File Link</label>
-              <input type="url" id="driveLinkInput" placeholder="Paste your Google Drive share link here" required />
-              <small class="helper-text">In your Google Drive: Right-click file ➔ Share ➔ Copy link</small>
+              <label>Choose Attachment Method</label>
+              <div class="method-toggle">
+                <button type="button" class="method-btn active" id="methodUploadBtn" onclick="setAttachMethod('upload')">
+                  <i class="ri-upload-cloud-2-line"></i> Upload File (<25MB)
+                </button>
+                <button type="button" class="method-btn" id="methodLinkBtn" onclick="setAttachMethod('link')">
+                  <i class="ri-links-line"></i> Paste Cloud Link
+                </button>
+              </div>
             </div>
 
-            <button type="submit" class="btn-primary full-width">
+            <!-- OPTION 1: DRAG & DROP FILE ZONE -->
+            <div id="uploadInputSection" class="attach-section">
+              <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileUploadInput').click()">
+                <i class="ri-file-upload-line drop-icon"></i>
+                <p id="dropZoneText">Click or Drag & Drop lecture note here</p>
+                <span class="drop-subtext">PDF, DOCX, PPT, ZIP (Direct Cloud Storage)</span>
+              </div>
+              <input type="file" id="fileUploadInput" style="display: none;" onchange="handleFileSelected(event)" />
+              <div id="fileSelectedInfo" class="file-info-badge" style="display: none;"></div>
+            </div>
+
+            <!-- OPTION 2: PASTE LINK ZONE -->
+            <div id="linkInputSection" class="attach-section" style="display: none;">
+              <input type="url" id="driveLinkInput" placeholder="Paste your Google Drive, OneDrive, or Dropbox share link here" />
+              <small class="helper-text">Ideal for files larger than 25MB or existing cloud folders</small>
+            </div>
+
+            <button type="submit" class="btn-primary full-width" style="margin-top: 15px;">
               <i class="ri-cloud-upload-line"></i> Publish to Students
             </button>
           </form>
@@ -113,9 +136,7 @@
               </button>
             </div>
             
-            <div class="admin-notes-list" id="adminSubjectsList" style="margin-top: 15px;">
-              <!-- Dynamic Subjects rendered here -->
-            </div>
+            <div class="admin-notes-list" id="adminSubjectsList" style="margin-top: 15px;"></div>
           </div>
 
           <div class="glass-card form-card">
@@ -146,7 +167,7 @@
     </div>
   </footer>
 
-  <!-- PRIVACY POLICY MODAL (WITH TOP-RIGHT ✕) -->
+  <!-- PRIVACY POLICY MODAL -->
   <div class="modal-backdrop" id="privacyModal">
     <div class="glass-card modal-content modal-policy">
       <button class="modal-close-btn" onclick="closePrivacyModal()" title="Close">
@@ -163,7 +184,7 @@
         <p>EduVault does not track student activity, collect personal identifying information, or deploy advertising cookies. Browsing and downloading lecture notes is completely anonymous.</p>
 
         <h4>2. Cloud File Storage</h4>
-        <p>All lecture notes, slide presentations, and syllabus documents are hosted directly on faculty professors' secure Google Drives and delivered over encrypted HTTPS connections.</p>
+        <p>Lecture materials are stored securely on Cloudflare Edge Storage and faculty Google Drives with direct, encrypted HTTPS delivery.</p>
 
         <h4>3. Security Infrastructure</h4>
         <p>Faculty authentication and database records are governed by Cloudflare Edge Security with zero local machine storage.</p>
@@ -171,7 +192,7 @@
     </div>
   </div>
 
-  <!-- TERMS OF SERVICE MODAL (WITH TOP-RIGHT ✕) -->
+  <!-- TERMS OF SERVICE MODAL -->
   <div class="modal-backdrop" id="termsModal">
     <div class="glass-card modal-content modal-policy">
       <button class="modal-close-btn" onclick="closeTermsModal()" title="Close">
